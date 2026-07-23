@@ -297,3 +297,9 @@
   font-size: 0.88rem;
   margin: 0;
 }
+
+.admin-auth__hint {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0 0 4px;
+}

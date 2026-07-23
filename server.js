@@ -2,6 +2,7 @@ import express from 'express'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import twilio from 'twilio'
+import adminLoginRouter from './server/adminLogin.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const { VoiceResponse } = twilio.twiml
@@ -120,6 +121,8 @@ app.post('/voice/recording', (req, res) => {
   twiml.hangup()
   res.type('text/xml').send(twiml.toString())
 })
+
+app.use('/api/admin-login', adminLoginRouter)
 
 app.use(express.static(path.join(__dirname, 'dist')))
 app.get(/.*/, (req, res) => {
