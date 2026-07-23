@@ -1,38 +1,24 @@
-import Nav from './components/Nav'
-import Hero from './sections/Hero'
-import WhatIBuild from './sections/WhatIBuild'
-import WebsiteFeature from './sections/WebsiteFeature'
-import Confirmations from './sections/Confirmations'
-import IVR from './sections/IVR'
-import Dashboard from './sections/Dashboard'
-import Tech from './sections/Tech'
-import WhoFor from './sections/WhoFor'
-import Included from './sections/Included'
-import CaseStudy from './sections/CaseStudy'
-import Pricing from './sections/Pricing'
-import Comparison from './sections/Comparison'
-import Cta from './sections/Cta'
-import Footer from './sections/Footer'
+import { Suspense, lazy } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import MarketingPage from './pages/MarketingPage'
 import './App.css'
+
+const AdminApp = lazy(() => import('./admin/AdminApp'))
 
 export default function App() {
   return (
-    <div className="page">
-      <Nav />
-      <Hero />
-      <WhatIBuild />
-      <WebsiteFeature />
-      <Confirmations />
-      <IVR />
-      <Dashboard />
-      <Tech />
-      <WhoFor />
-      <Included />
-      <CaseStudy />
-      <Pricing />
-      <Comparison />
-      <Cta />
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MarketingPage />} />
+        <Route
+          path="/admin/*"
+          element={
+            <Suspense fallback={null}>
+              <AdminApp />
+            </Suspense>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   )
 }
