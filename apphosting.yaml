@@ -1,0 +1,20 @@
+runConfig:
+  minInstances: 0
+  maxInstances: 2
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  - variable: BOOKING_URL
+    value: "https://notaryhost.com"
+    availability:
+      - RUNTIME
+
+# Once Twilio credentials are ready, create each secret with:
+#   firebase apphosting:secrets:set twilio-account-sid
+#   firebase apphosting:secrets:set twilio-auth-token
+#   firebase apphosting:secrets:set twilio-phone-number
+#   firebase apphosting:secrets:set twilio-transfer-number
+# then add matching entries here, e.g.:
+#   - variable: TWILIO_ACCOUNT_SID
+#     secret: twilio-account-sid
