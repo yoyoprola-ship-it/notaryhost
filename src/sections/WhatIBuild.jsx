@@ -26,7 +26,7 @@ const items = [
 
 export default function WhatIBuild() {
   return (
-    <section className="section">
+    <section className="section" id="services">
       <div className="section-inner">
         <Reveal>
           <h2 className="section__title">What do I build?</h2>

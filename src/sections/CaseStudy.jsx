@@ -9,7 +9,7 @@ const bullets = [
 
 export default function CaseStudy() {
   return (
-    <section className="section">
+    <section className="section" id="results">
       <div className="section-inner section-inner--narrow">
         <Reveal>
           <div className="case-card">

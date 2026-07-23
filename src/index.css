@@ -67,3 +67,12 @@ svg {
   background: var(--gold-soft);
   color: var(--text-dark);
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+section[id],
+header[id] {
+  scroll-margin-top: 88px;
+}

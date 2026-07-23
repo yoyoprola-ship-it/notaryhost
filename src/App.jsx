@@ -1,3 +1,4 @@
+import Nav from './components/Nav'
 import Hero from './sections/Hero'
 import WhatIBuild from './sections/WhatIBuild'
 import WebsiteFeature from './sections/WebsiteFeature'
@@ -17,6 +18,7 @@ import './App.css'
 export default function App() {
   return (
     <div className="page">
+      <Nav />
       <Hero />
       <WhatIBuild />
       <WebsiteFeature />

@@ -3,23 +3,11 @@ import Reveal from '../components/Reveal'
 
 export default function Hero() {
   return (
-    <header className="hero">
+    <header className="hero" id="top">
       <div className="hero__glow" />
       <div className="hero__blob hero__blob--1" />
       <div className="hero__blob hero__blob--2" />
       <div className="section-inner hero__inner">
-        <nav className="hero__nav">
-          <div className="brand">
-            <span className="brand__mark">
-              <Icon name="seal" size={18} />
-            </span>
-            <span>NotaryHost</span>
-          </div>
-          <a className="btn btn--ghost" href="#contact">
-            Get in touch
-          </a>
-        </nav>
-
         <Reveal>
           <p className="eyebrow">Digital Solutions for Notaries</p>
         </Reveal>

@@ -211,6 +211,114 @@
   color: var(--gold-light);
 }
 
+/* ---------- site nav ---------- */
+
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(10, 12, 34, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(236, 206, 142, 0.12);
+}
+
+.site-nav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.site-nav .brand {
+  text-decoration: none;
+}
+
+.site-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.site-nav__links a {
+  color: #c3c6de;
+  text-decoration: none;
+  font-size: 0.94rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.site-nav__links a:hover {
+  color: var(--gold-light);
+}
+
+.site-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.site-nav__toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 38px;
+  height: 38px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.site-nav__toggle span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 2px;
+}
+
+.site-nav__mobile {
+  background: var(--navy-900);
+  border-bottom: 1px solid rgba(236, 206, 142, 0.14);
+}
+
+.site-nav__mobile ul {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 32px 20px;
+}
+
+.site-nav__mobile a {
+  display: block;
+  padding: 12px 0;
+  color: #e5e7f5;
+  text-decoration: none;
+  font-size: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.site-nav__mobile a:hover {
+  color: var(--gold-light);
+}
+
+@media (max-width: 860px) {
+  .site-nav__links {
+    display: none;
+  }
+  .site-nav__actions .btn--ghost {
+    display: none;
+  }
+  .site-nav__toggle {
+    display: flex;
+  }
+}
+
 /* ---------- hero ---------- */
 
 .hero {
@@ -219,6 +327,7 @@
   color: #fff;
   overflow: hidden;
   padding-bottom: 110px;
+  padding-top: 88px;
 }
 
 .hero__glow {
@@ -256,14 +365,7 @@
 .hero__inner {
   position: relative;
   z-index: 1;
-  padding-top: 32px;
-}
-
-.hero__nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 104px;
+  padding-top: 56px;
 }
 
 .hero__title {
@@ -302,9 +404,6 @@
 @media (max-width: 700px) {
   .hero__title {
     font-size: 2.6rem;
-  }
-  .hero__nav {
-    margin-bottom: 72px;
   }
   .hero__blob--1 {
     width: 200px;

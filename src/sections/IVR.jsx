@@ -26,7 +26,7 @@ const steps = [
 
 export default function IVR() {
   return (
-    <section className="section section--dark">
+    <section className="section section--dark" id="how-it-works">
       <div className="section-inner">
         <Reveal>
           <h2 className="section__title">
