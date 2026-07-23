@@ -1,4 +1,5 @@
 import Icon from '../components/Icon'
+import Reveal from '../components/Reveal'
 
 const rows = [
   {
@@ -25,40 +26,50 @@ export default function Comparison() {
   return (
     <section className="section">
       <div className="section-inner">
-        <h2 className="section__title">How you compare to the market</h2>
-        <p className="section__lead">
-          U.S. market prices for similar services, purchased separately
-          (2026).
-        </p>
+        <Reveal>
+          <h2 className="section__title">How you compare to the market</h2>
+        </Reveal>
+        <Reveal delay={80}>
+          <p className="section__lead">
+            U.S. market prices for similar services, purchased separately
+            (2026).
+          </p>
+        </Reveal>
         <div className="grid grid--3">
-          {rows.map((row) => (
-            <div className="card" key={row.title}>
-              <span className="icon-badge">
-                <Icon name={row.icon} />
-              </span>
-              <h3 className="card__title">{row.title}</h3>
-              <p className="price price--sm">
-                {row.range}
-                <span>/ mo</span>
-              </p>
-              <p className="card__text">{row.text}</p>
-            </div>
+          {rows.map((row, i) => (
+            <Reveal key={row.title} delay={i * 90}>
+              <div className="card">
+                <span className="icon-badge">
+                  <Icon name={row.icon} />
+                </span>
+                <h3 className="card__title">{row.title}</h3>
+                <p className="price price--sm">
+                  {row.range}
+                  <span>/ mo</span>
+                </p>
+                <p className="card__text">{row.text}</p>
+              </div>
+            </Reveal>
           ))}
         </div>
-        <div className="callout callout--full">
-          Hiring each service separately:{' '}
-          <strong>$137 – $406 / mo</strong>
-        </div>
-        <div className="bundle">
-          <p className="eyebrow eyebrow--light">Your investment with us</p>
-          <p className="price price--lg">
-            $99<span>/ mo</span>
-          </p>
-          <p className="bundle__text">
-            Website + booking + SMS verification + bilingual IVR + admin
-            dashboard — all in one place.
-          </p>
-        </div>
+        <Reveal delay={280}>
+          <div className="callout callout--full">
+            Hiring each service separately:{' '}
+            <strong>$137 – $406 / mo</strong>
+          </div>
+        </Reveal>
+        <Reveal delay={340}>
+          <div className="bundle">
+            <p className="eyebrow eyebrow--light">Your investment with us</p>
+            <p className="price price--lg">
+              $99<span>/ mo</span>
+            </p>
+            <p className="bundle__text">
+              Website + booking + SMS verification + bilingual IVR + admin
+              dashboard — all in one place.
+            </p>
+          </div>
+        </Reveal>
       </div>
     </section>
   )

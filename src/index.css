@@ -1,21 +1,23 @@
 :root {
-  --navy-900: #1a1e4a;
-  --navy-800: #232a63;
-  --navy-700: #2c3373;
-  --teal: #2f9bb8;
-  --teal-light: #5fd0cf;
+  --ink: #0a0c22;
+  --navy-900: #10132e;
+  --navy-800: #1a1e45;
+  --navy-700: #232a5c;
+  --gold: #c9a24d;
+  --gold-light: #ecce8e;
+  --gold-soft: rgba(201, 162, 77, 0.16);
   --bg: #ffffff;
-  --bg-tint: #f2f5f9;
-  --card-bg: #eef2f7;
-  --text: #4b5170;
-  --text-dark: #171b3f;
-  --muted: #6b7190;
-  --border: #e3e7ef;
+  --paper: #faf7ef;
+  --card-bg: #f4efe2;
+  --text: #4d4a5e;
+  --text-dark: #171735;
+  --muted: #726f88;
+  --border: #e9e3d2;
 
-  --sans: 'Segoe UI', system-ui, Roboto, sans-serif;
-  --serif: Georgia, 'Times New Roman', serif;
+  --sans: 'Inter', 'Segoe UI', system-ui, Roboto, sans-serif;
+  --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
 
-  font: 16px/1.55 var(--sans);
+  font: 16px/1.6 var(--sans);
   color: var(--text);
   background: var(--bg);
   color-scheme: light;
@@ -36,7 +38,7 @@ h2,
 h3,
 h4 {
   font-family: var(--serif);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-dark);
   margin: 0;
 }
@@ -59,4 +61,9 @@ img,
 svg {
   display: block;
   max-width: 100%;
+}
+
+::selection {
+  background: var(--gold-soft);
+  color: var(--text-dark);
 }

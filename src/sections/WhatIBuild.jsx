@@ -1,25 +1,26 @@
 import Icon from '../components/Icon'
+import Reveal from '../components/Reveal'
 
 const items = [
   {
     icon: 'globe',
     title: 'Bilingual website',
-    text: 'A professional presentation in English and Spanish, fast and mobile-friendly.',
+    text: 'A polished, professional presentation of your notary practice in English and Spanish — fast and mobile-ready.',
   },
   {
     icon: 'calendar',
-    title: '24/7 booking system',
-    text: 'Your clients book online, with real-time availability.',
+    title: '24/7 signing bookings',
+    text: 'Clients book loan signings, closings, and notarizations online, any hour, with real-time availability.',
   },
   {
     icon: 'phone',
     title: 'Phone robot (IVR)',
-    text: 'Answers calls in English and Spanish, with no manual intervention.',
+    text: 'Answers calls about signings in English and Spanish — no missed clients, no answering-service fees.',
   },
   {
     icon: 'gauge',
     title: 'Admin dashboard',
-    text: 'See appointments, messages, and stats from any device.',
+    text: 'See every appointment, signing, and client message from any device.',
   },
 ]
 
@@ -27,21 +28,28 @@ export default function WhatIBuild() {
   return (
     <section className="section">
       <div className="section-inner">
-        <h2 className="section__title">What do I build?</h2>
-        <p className="section__lead">
-          I design, build, and launch complete custom web platforms with
-          everything a business needs to attract clients, get organized
-          internally, and project a professional image from day one.
-        </p>
+        <Reveal>
+          <h2 className="section__title">What do I build?</h2>
+        </Reveal>
+        <Reveal delay={80}>
+          <p className="section__lead">
+            I design, build, and launch a complete digital practice for
+            notaries — everything you need to book signings, answer calls,
+            and look like the most trustworthy notary in town from the very
+            first click.
+          </p>
+        </Reveal>
         <div className="grid grid--2">
-          {items.map((item) => (
-            <div className="card" key={item.title}>
-              <span className="icon-badge">
-                <Icon name={item.icon} />
-              </span>
-              <h3 className="card__title">{item.title}</h3>
-              <p className="card__text">{item.text}</p>
-            </div>
+          {items.map((item, i) => (
+            <Reveal key={item.title} delay={i * 90}>
+              <div className="card">
+                <span className="icon-badge">
+                  <Icon name={item.icon} />
+                </span>
+                <h3 className="card__title">{item.title}</h3>
+                <p className="card__text">{item.text}</p>
+              </div>
+            </Reveal>
           ))}
         </div>
       </div>
