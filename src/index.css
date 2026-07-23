@@ -1,0 +1,62 @@
+:root {
+  --navy-900: #1a1e4a;
+  --navy-800: #232a63;
+  --navy-700: #2c3373;
+  --teal: #2f9bb8;
+  --teal-light: #5fd0cf;
+  --bg: #ffffff;
+  --bg-tint: #f2f5f9;
+  --card-bg: #eef2f7;
+  --text: #4b5170;
+  --text-dark: #171b3f;
+  --muted: #6b7190;
+  --border: #e3e7ef;
+
+  --sans: 'Segoe UI', system-ui, Roboto, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+
+  font: 16px/1.55 var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--serif);
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
