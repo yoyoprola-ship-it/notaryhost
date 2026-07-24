@@ -71,7 +71,10 @@ async function sendOtpEmail(code) {
     subject: `NotaryHost admin login code: ${code}`,
     text: `Your NotaryHost admin sign-in code is ${code}. It expires in 10 minutes.`,
   })
-  if (error) throw new Error('resend_send_failed')
+  if (error) {
+    console.error('Resend send failed:', error)
+    throw new Error('resend_send_failed')
+  }
 }
 
 // Public, no session yet — this runs *before* the client ever calls
