@@ -23,3 +23,5 @@ env:
     secret: NEXT_PUBLIC_ADMIN_PHONE
   - variable: ADMIN_LOGIN_OTP_PEPPER
     secret: admin-login-otp-pepper
+  - variable: TRANSFER_PHONE_NUMBER
+    secret: TRANSFER_PHONE_NUMBER
