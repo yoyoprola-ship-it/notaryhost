@@ -1,7 +1,37 @@
+.admin-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px 24px 0;
+  font-family: var(--sans);
+}
+
+.admin-nav__links {
+  display: flex;
+  gap: 20px;
+}
+
+.admin-nav__link {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.94rem;
+  padding-bottom: 6px;
+  border-bottom: 2px solid transparent;
+}
+
+.admin-nav__link--active {
+  color: var(--text-dark);
+  border-bottom-color: var(--gold);
+}
+
 .admin-shell {
   max-width: 960px;
   margin: 0 auto;
-  padding: 48px 24px 80px;
+  padding: 32px 24px 80px;
   font-family: var(--sans);
   color: var(--text-dark);
 }
@@ -126,6 +156,16 @@
 .admin-status--cancelled {
   background: rgba(192, 57, 43, 0.12);
   color: #c0392b;
+}
+
+.admin-status--admin {
+  background: var(--navy-900);
+  color: #fff;
+}
+
+.admin-status--notary_owner {
+  background: var(--gold-soft);
+  color: #8a6a1f;
 }
 
 /* form */

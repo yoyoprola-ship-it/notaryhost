@@ -6,8 +6,20 @@ service cloud.firestore {
         && request.auth.token.email == 'yoyoprola@gmail.com';
     }
 
+    function isNotaryOwner(notaryId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.notaryId == notaryId;
+    }
+
     match /notaries/{notaryId} {
-      allow read, write: if isAdmin();
+      allow read: if isAdmin() || isNotaryOwner(notaryId);
+      allow write: if isAdmin();
+    }
+
+    match /users/{uid} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow write: if isAdmin();
     }
 
     match /{document=**} {

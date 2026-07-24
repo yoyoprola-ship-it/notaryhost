@@ -4,6 +4,7 @@ import { RecaptchaVerifier, signInWithPhoneNumber, signOut } from 'firebase/auth
 import { auth } from '../firebase'
 import { useAuth } from './AuthContext'
 import { isAdminSession } from './session'
+import { adminFetch } from './apiClient'
 
 const SERVER_ERROR_MESSAGES = {
   rate_limited: 'Too many attempts right now. Try again in a bit.',
@@ -20,20 +21,11 @@ const AUTH_ERROR_MESSAGES = {
 }
 
 async function postJson(path, body) {
-  const idToken = await auth.currentUser.getIdToken()
-  const res = await fetch(`/api/admin-login/${path}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${idToken}`,
-    },
-    body: JSON.stringify(body),
-  })
-  const data = await res.json().catch(() => ({}))
-  if (!res.ok) {
-    throw new Error(SERVER_ERROR_MESSAGES[data.error] || 'Something went wrong.')
+  try {
+    return await adminFetch(`/api/admin-login/${path}`, { body })
+  } catch (err) {
+    throw new Error(SERVER_ERROR_MESSAGES[err.code] || 'Something went wrong.')
   }
-  return data
 }
 
 export default function LoginPage() {

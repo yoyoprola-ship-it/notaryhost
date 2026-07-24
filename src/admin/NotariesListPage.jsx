@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { signOut } from 'firebase/auth'
-import { auth } from '../firebase'
 import { listNotaries } from './notariesApi'
 
 export default function NotariesListPage() {
@@ -22,9 +20,6 @@ export default function NotariesListPage() {
           <Link className="admin-btn admin-btn--primary" to="/admin/notaries/new">
             + Add notary
           </Link>
-          <button className="admin-btn" onClick={() => signOut(auth)}>
-            Sign out
-          </button>
         </div>
       </header>
 
