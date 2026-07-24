@@ -10,7 +10,7 @@ const { VoiceResponse } = twilio.twiml
 const PORT = process.env.PORT || 8080
 const BOOKING_URL = process.env.BOOKING_URL || 'https://notaryhost.com'
 const TRANSFER_PHONE_NUMBER = process.env.TRANSFER_PHONE_NUMBER || ''
-const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER || ''
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER_HOST || ''
 
 const voiceFor = (lang) =>
   lang === 'es' ? { voice: 'Polly.Lupe', language: 'es-MX' } : { voice: 'Polly.Joanna' }
