@@ -2,6 +2,91 @@
   overflow-x: hidden;
 }
 
+/* ---------- tenant (per-notary) marketing page ---------- */
+
+.tenant-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--navy-900);
+  color: #fff;
+}
+
+.tenant-page__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 32px;
+  font-family: var(--serif);
+  font-weight: 600;
+}
+
+.tenant-page__main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.tenant-page__loading {
+  color: #b6bad8;
+}
+
+.tenant-page__notfound h1 {
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.tenant-page__notfound p {
+  color: #b6bad8;
+}
+
+.tenant-page__card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--paper);
+  border-radius: 20px;
+  padding: 48px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.tenant-page__card h1 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+}
+
+.tenant-page__description {
+  color: var(--muted);
+  font-size: 1.05rem;
+  margin-bottom: 28px;
+  white-space: pre-wrap;
+}
+
+.tenant-page__contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.tenant-page__contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--navy-900);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.tenant-page__footer {
+  text-align: center;
+  padding: 24px;
+  color: #7d81a3;
+  font-size: 0.88rem;
+}
+
 .section-inner {
   max-width: 1120px;
   margin: 0 auto;

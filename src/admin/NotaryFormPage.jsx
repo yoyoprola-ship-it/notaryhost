@@ -9,8 +9,15 @@ const emptyForm = {
   ownerPhone: '',
   products: [],
   subdomainSlug: '',
+  description: '',
   status: 'lead',
   notes: '',
+}
+
+const SLUG_PATTERN = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/
+
+const ERROR_MESSAGES = {
+  slug_taken: 'That subdomain is already used by another notary.',
 }
 
 export default function NotaryFormPage() {
@@ -42,8 +49,14 @@ export default function NotaryFormPage() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    setSaving(true)
     setError('')
+
+    if (form.subdomainSlug && !SLUG_PATTERN.test(form.subdomainSlug)) {
+      setError('Subdomain can only use lowercase letters, numbers, and hyphens.')
+      return
+    }
+
+    setSaving(true)
     try {
       if (isEdit) {
         await updateNotary(id, form)
@@ -52,8 +65,8 @@ export default function NotaryFormPage() {
         const newId = await createNotary(form)
         navigate(`/admin/notaries/${newId}`)
       }
-    } catch {
-      setError('Could not save. Please try again.')
+    } catch (err) {
+      setError(ERROR_MESSAGES[err.message] || 'Could not save. Please try again.')
       setSaving(false)
     }
   }
@@ -122,11 +135,11 @@ export default function NotaryFormPage() {
 
         <div className="admin-form__row">
           <label>
-            Reserved subdomain
+            Subdomain
             <input
               placeholder="e.g. smithnotary"
               value={form.subdomainSlug}
-              onChange={(e) => setForm({ ...form, subdomainSlug: e.target.value })}
+              onChange={(e) => setForm({ ...form, subdomainSlug: e.target.value.toLowerCase() })}
             />
           </label>
           <label>
@@ -143,6 +156,16 @@ export default function NotaryFormPage() {
             </select>
           </label>
         </div>
+
+        <label>
+          Public description
+          <textarea
+            rows={3}
+            placeholder="Shown on this notary's public subdomain page, if one is set."
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+          />
+        </label>
 
         <label>
           Notes
