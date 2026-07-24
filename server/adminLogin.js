@@ -74,6 +74,19 @@ async function sendOtpEmail(code) {
   if (error) throw new Error('resend_send_failed')
 }
 
+// Public, no session yet — this runs *before* the client ever calls
+// Firebase's signInWithPhoneNumber, so a wrong number never triggers a real
+// SMS send in the normal login flow. Not a hard security boundary (Firebase's
+// client config is public, so a determined caller could bypass this and hit
+// Firebase directly), but it closes the front door for the normal case.
+router.post('/check-phone', (req, res) => {
+  const { phoneNumber } = req.body
+  if (!phoneNumber || phoneNumber !== process.env.NEXT_PUBLIC_ADMIN_PHONE) {
+    return res.status(403).json({ error: 'not_admin' })
+  }
+  res.json({ ok: true })
+})
+
 router.post('/request-email-code', requireAuth, async (req, res) => {
   const { uid, phone_number: phoneNumber } = req.decodedToken
 

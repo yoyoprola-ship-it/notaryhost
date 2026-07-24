@@ -28,6 +28,21 @@ async function postJson(path, body) {
   }
 }
 
+// Unauthenticated — there's no Firebase session yet at this point in the
+// flow, so this can't go through apiClient's adminFetch (which requires a
+// signed-in user to attach a bearer token).
+async function checkPhoneNumber(phoneNumber) {
+  const res = await fetch('/api/admin-login/check-phone', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phoneNumber }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(SERVER_ERROR_MESSAGES[data.error] || "That phone number isn't authorized for this account.")
+  }
+}
+
 export default function LoginPage() {
   const { user, loading } = useAuth()
   const navigate = useNavigate()
@@ -82,13 +97,16 @@ export default function LoginPage() {
     setError('')
     setSubmitting(true)
     try {
+      // Check before Firebase ever sends a real SMS — a wrong/typo'd number
+      // gets rejected immediately with no message sent.
+      await checkPhoneNumber(phoneNumber)
       const verifier = getOrCreateVerifier()
       confirmationRef.current = await signInWithPhoneNumber(auth, phoneNumber, verifier)
       setStage('phone-code')
     } catch (err) {
       recaptchaRef.current?.clear()
       recaptchaRef.current = null
-      setError(AUTH_ERROR_MESSAGES[err.code] || 'Could not send the code. Try again.')
+      setError(err.code ? AUTH_ERROR_MESSAGES[err.code] || 'Could not send the code. Try again.' : err.message)
     } finally {
       setSubmitting(false)
     }
