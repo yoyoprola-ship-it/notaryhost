@@ -9,12 +9,17 @@ env:
     value: "https://notaryhost.com"
     availability:
       - RUNTIME
-
-# Once Twilio credentials are ready, create each secret with:
-#   firebase apphosting:secrets:set twilio-account-sid
-#   firebase apphosting:secrets:set twilio-auth-token
-#   firebase apphosting:secrets:set twilio-phone-number
-#   firebase apphosting:secrets:set twilio-transfer-number
-# then add matching entries here, e.g.:
-#   - variable: TWILIO_ACCOUNT_SID
-#     secret: twilio-account-sid
+  - variable: RESEND_API_KEY
+    secret: resend-api-key
+  - variable: TWILIO_ACCOUNT_SID
+    secret: TWILIO_ACCOUNT_SID
+  - variable: TWILIO_AUTH_TOKEN
+    secret: TWILIO_AUTH_TOKEN
+  - variable: TWILIO_PHONE_NUMBER_HOST
+    secret: TWILIO_PHONE_NUMBER_HOST
+  - variable: NEXT_PUBLIC_ADMIN_EMAIL
+    secret: NEXT_PUBLIC_ADMIN_EMAIL
+  - variable: NEXT_PUBLIC_ADMIN_PHONE
+    secret: NEXT_PUBLIC_ADMIN_PHONE
+  - variable: ADMIN_LOGIN_OTP_PEPPER
+    secret: admin-login-otp-pepper

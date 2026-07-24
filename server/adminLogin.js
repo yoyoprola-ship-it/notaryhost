@@ -4,7 +4,11 @@ import { randomInt, createHmac, timingSafeEqual } from 'node:crypto'
 import { Timestamp } from 'firebase-admin/firestore'
 import { adminAuth, adminDb } from './firebaseAdmin.js'
 
-const ADMIN_EMAIL = 'yoyoprola@gmail.com'
+// Must exactly match the literal email in firestore.rules — Security Rules
+// can't read secrets/env vars, so that copy can never come from here. Keep
+// this secret's value byte-for-byte identical to firestore.rules or login
+// will "succeed" but Firestore will still deny access.
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL
 const CODE_TTL_MS = 10 * 60 * 1000
 const MAX_ATTEMPTS = 5
 const THROTTLE_COOLDOWN_MS = 30 * 1000
@@ -73,7 +77,7 @@ async function sendOtpEmail(code) {
 router.post('/request-email-code', requireAuth, async (req, res) => {
   const { uid, phone_number: phoneNumber } = req.decodedToken
 
-  if (!phoneNumber || phoneNumber !== process.env.ADMIN_PHONE_NUMBER) {
+  if (!phoneNumber || phoneNumber !== process.env.NEXT_PUBLIC_ADMIN_PHONE) {
     return res.status(403).json({ error: 'not_admin' })
   }
 
