@@ -1,7 +1,11 @@
 import { auth } from '../firebase'
 
 export async function adminFetch(path, { method = 'POST', body } = {}) {
-  const idToken = await auth.currentUser.getIdToken()
+  // Force a refresh, not the cached token: the admin-login flow mutates the
+  // user's email server-side mid-flow (downgrade-then-restore), which bumps
+  // Firebase's tokensValidAfterTime and invalidates any ID token minted
+  // before that change — a cached token here would 401 on the very next call.
+  const idToken = await auth.currentUser.getIdToken(true)
   const res = await fetch(path, {
     method,
     headers: {
