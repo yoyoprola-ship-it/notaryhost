@@ -126,8 +126,23 @@ app.post('/voice/recording', (req, res) => {
 app.use('/api/admin-login', adminLoginRouter)
 app.use('/api/admin/users', adminUsersRouter)
 
-app.use(express.static(path.join(__dirname, 'dist')))
+// Hashed filenames change on every build, so they're safe to cache forever;
+// index.html/the SPA fallback must never be cached, or a browser/CDN can keep
+// serving an old index.html that points at an asset a later deploy deleted.
+app.use(
+  express.static(path.join(__dirname, 'dist'), {
+    index: false,
+    setHeaders(res, filePath) {
+      if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+      } else {
+        res.setHeader('Cache-Control', 'no-store')
+      }
+    },
+  })
+)
 app.get(/.*/, (req, res) => {
+  res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'dist', 'index.html'))
 })
 
