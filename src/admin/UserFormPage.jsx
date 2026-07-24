@@ -8,7 +8,9 @@ const ERROR_MESSAGES = {
   notary_not_found: 'That notary no longer exists.',
   notary_already_has_owner: 'That notary already has an owner account.',
   phone_already_exists: 'That phone number is already registered to another account.',
+  email_already_exists: 'That email is already registered to another account.',
   invalid_phone_number: 'Enter a valid phone number, e.g. +13375551234.',
+  invalid_email: 'Enter a valid email address.',
 }
 
 export default function UserFormPage() {
@@ -16,6 +18,7 @@ export default function UserFormPage() {
   const [notaries, setNotaries] = useState(null)
   const [displayName, setDisplayName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [email, setEmail] = useState('')
   const [notaryId, setNotaryId] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -31,7 +34,7 @@ export default function UserFormPage() {
     setError('')
     setSaving(true)
     try {
-      await createUser({ displayName, phoneNumber, notaryId })
+      await createUser({ displayName, phoneNumber, email, notaryId })
       navigate('/admin/users')
     } catch (err) {
       setError(ERROR_MESSAGES[err.code] || 'Could not save. Please try again.')
@@ -66,6 +69,17 @@ export default function UserFormPage() {
             required
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
+          />
+        </label>
+
+        <label>
+          Email
+          <input
+            type="email"
+            placeholder="owner@example.com"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </label>
 

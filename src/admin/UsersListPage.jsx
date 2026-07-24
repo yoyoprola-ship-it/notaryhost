@@ -8,7 +8,8 @@ const ADMIN_ROW = {
   id: 'admin',
   role: 'admin',
   displayName: 'Admin',
-  contact: ADMIN_EMAIL,
+  phoneNumber: '—',
+  email: ADMIN_EMAIL,
   notaryName: '—',
 }
 
@@ -30,7 +31,8 @@ export default function UsersListPage() {
           id: u.id,
           role: u.role,
           displayName: u.displayName,
-          contact: u.phoneNumber,
+          phoneNumber: u.phoneNumber,
+          email: u.email,
           notaryName: notaryById[u.notaryId]?.businessName || '—',
         }))
         setRows([ADMIN_ROW, ...userRows])
@@ -81,7 +83,11 @@ export default function UsersListPage() {
             {rows.map((row) => (
               <tr key={row.id}>
                 <td>{row.displayName}</td>
-                <td>{row.contact}</td>
+                <td>
+                  {row.phoneNumber}
+                  <br />
+                  <span className="admin-muted">{row.email}</span>
+                </td>
                 <td>
                   <span className={`admin-status admin-status--${row.role}`}>{row.role}</span>
                 </td>

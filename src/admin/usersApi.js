@@ -9,10 +9,10 @@ export async function listUsers() {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
 
-export async function createUser({ phoneNumber, displayName, notaryId }) {
+export async function createUser({ phoneNumber, email, displayName, notaryId }) {
   const { uid } = await adminFetch('/api/admin/users', {
     method: 'POST',
-    body: { phoneNumber, displayName, notaryId },
+    body: { phoneNumber, email, displayName, notaryId },
   })
   return uid
 }

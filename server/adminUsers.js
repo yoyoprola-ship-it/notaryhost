@@ -21,8 +21,8 @@ async function requireAdmin(req, res, next) {
 }
 
 router.post('/', requireAdmin, async (req, res) => {
-  const { phoneNumber, displayName, notaryId } = req.body
-  if (!phoneNumber || !displayName || !notaryId) {
+  const { phoneNumber, email, displayName, notaryId } = req.body
+  if (!phoneNumber || !email || !displayName || !notaryId) {
     return res.status(400).json({ error: 'missing_fields' })
   }
 
@@ -35,14 +35,22 @@ router.post('/', requireAdmin, async (req, res) => {
 
   let uid
   try {
-    const userRecord = await adminAuth.createUser({ phoneNumber, displayName })
+    // email is contact info only — sign-in is phone+SMS only, this is never
+    // used as a login credential and is not required to be verified.
+    const userRecord = await adminAuth.createUser({ phoneNumber, email, displayName })
     uid = userRecord.uid
   } catch (err) {
     if (err.code === 'auth/phone-number-already-exists') {
       return res.status(409).json({ error: 'phone_already_exists' })
     }
+    if (err.code === 'auth/email-already-exists') {
+      return res.status(409).json({ error: 'email_already_exists' })
+    }
     if (err.code === 'auth/invalid-phone-number') {
       return res.status(400).json({ error: 'invalid_phone_number' })
+    }
+    if (err.code === 'auth/invalid-email') {
+      return res.status(400).json({ error: 'invalid_email' })
     }
     throw err
   }
@@ -53,6 +61,7 @@ router.post('/', requireAdmin, async (req, res) => {
       role: 'notary_owner',
       notaryId,
       phoneNumber,
+      email,
       displayName,
       createdAt: FieldValue.serverTimestamp(),
       createdBy: 'admin',
