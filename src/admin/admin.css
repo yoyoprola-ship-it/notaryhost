@@ -209,6 +209,37 @@
   flex-wrap: wrap;
 }
 
+.admin-form__row > input,
+.admin-form__row > textarea {
+  flex: 1 1 260px;
+  min-width: 0;
+  width: 100%;
+}
+
+.admin-form textarea {
+  resize: vertical;
+  line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+  .admin-form__row {
+    flex-direction: column;
+  }
+}
+
+.admin-ivr-field {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.admin-ivr-field__label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+}
+
 .admin-form__fieldset {
   border: 1px solid var(--border);
   border-radius: 10px;

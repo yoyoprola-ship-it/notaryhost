@@ -491,13 +491,19 @@ function IvrSection({ notaryId, ivrConfig }) {
         </label>
 
         {IVR_FIELDS.map(([key, label]) => (
-          <label key={key}>
-            {label}
+          <div key={key} className="admin-ivr-field">
+            <p className="admin-ivr-field__label">{label}</p>
             <div className="admin-form__row">
-              <textarea rows={2} value={config[key]?.en || ''} onChange={(e) => setField(key, 'en', e.target.value)} placeholder="English" />
-              <textarea rows={2} value={config[key]?.es || ''} onChange={(e) => setField(key, 'es', e.target.value)} placeholder="Español" />
+              <label>
+                English
+                <textarea rows={3} value={config[key]?.en || ''} onChange={(e) => setField(key, 'en', e.target.value)} />
+              </label>
+              <label>
+                Español
+                <textarea rows={3} value={config[key]?.es || ''} onChange={(e) => setField(key, 'es', e.target.value)} />
+              </label>
             </div>
-          </label>
+          </div>
         ))}
       </div>
       <button className="admin-btn admin-btn--primary" onClick={handleSave} disabled={saving}>
