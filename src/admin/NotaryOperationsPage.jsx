@@ -30,6 +30,26 @@ const TABS = [
   ['ivr', 'IVR script'],
 ]
 
+const POLLY_VOICES = {
+  en: [
+    ['Polly.Joanna', 'Joanna — Female (US English)'],
+    ['Polly.Matthew', 'Matthew — Male (US English)'],
+    ['Polly.Ivy', 'Ivy — Female, child (US English)'],
+    ['Polly.Justin', 'Justin — Male, child (US English)'],
+    ['Polly.Kendra', 'Kendra — Female (US English)'],
+    ['Polly.Kimberly', 'Kimberly — Female (US English)'],
+    ['Polly.Salli', 'Salli — Female (US English)'],
+    ['Polly.Joey', 'Joey — Male (US English)'],
+  ],
+  es: [
+    ['Polly.Miguel', 'Miguel — Male (US Spanish)'],
+    ['Polly.Mia', 'Mia — Female (Mexican Spanish)'],
+    ['Polly.Conchita', 'Conchita — Female (Castilian Spanish)'],
+    ['Polly.Enrique', 'Enrique — Male (Castilian Spanish)'],
+    ['Polly.Lucia', 'Lucia — Female (Castilian Spanish)'],
+  ],
+}
+
 const IVR_FIELDS = [
   ['intro', 'Intro greeting'],
   ['langPrompt', 'Language prompt'],
@@ -450,6 +470,19 @@ function HoursSection({ notaryId, hours }) {
   )
 }
 
+function VoiceSelect({ lang, value, onChange }) {
+  const options = POLLY_VOICES[lang]
+  const known = options.some(([id]) => id === value)
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)}>
+      {!known && value && <option value={value}>{value} (current)</option>}
+      {options.map(([id, label]) => (
+        <option key={id} value={id}>{label}</option>
+      ))}
+    </select>
+  )
+}
+
 function IvrSection({ notaryId, ivrConfig }) {
   const [config, setConfig] = useState(ivrConfig)
   const [saving, setSaving] = useState(false)
@@ -482,13 +515,19 @@ function IvrSection({ notaryId, ivrConfig }) {
       <h2 className="admin-section-title">IVR configuration (voice robot script)</h2>
       {err && <p className="admin-error">{err}</p>}
       <div className="admin-form" style={{ marginBottom: 16 }}>
-        <label>
-          Voices (Twilio Polly voice names)
+        <div className="admin-ivr-field">
+          <p className="admin-ivr-field__label">Voices (Twilio Polly)</p>
           <div className="admin-form__row">
-            <input value={config.voices?.en || ''} onChange={(e) => setField('voices', 'en', e.target.value)} placeholder="EN voice, e.g. Polly.Matthew" />
-            <input value={config.voices?.es || ''} onChange={(e) => setField('voices', 'es', e.target.value)} placeholder="ES voice, e.g. Polly.Miguel" />
+            <label>
+              English
+              <VoiceSelect lang="en" value={config.voices?.en || ''} onChange={(v) => setField('voices', 'en', v)} />
+            </label>
+            <label>
+              Español
+              <VoiceSelect lang="es" value={config.voices?.es || ''} onChange={(v) => setField('voices', 'es', v)} />
+            </label>
           </div>
-        </label>
+        </div>
 
         {IVR_FIELDS.map(([key, label]) => (
           <div key={key} className="admin-ivr-field">
