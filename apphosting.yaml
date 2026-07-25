@@ -25,3 +25,5 @@ env:
     secret: admin-login-otp-pepper
   - variable: TRANSFER_PHONE_NUMBER
     secret: TRANSFER_PHONE_NUMBER
+  - variable: CRON_SECRET
+    secret: notarygarcia-cron-secret

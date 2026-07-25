@@ -14,6 +14,7 @@ const emptyForm = {
   notes: '',
   collectionPrefix: '',
   twilioPhoneNumber: '',
+  businessAddress: '',
 }
 
 const SLUG_PATTERN = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/
@@ -177,6 +178,15 @@ export default function NotaryFormPage() {
             />
           </label>
         </div>
+
+        <label>
+          Business address
+          <input
+            placeholder="e.g. 100 Eva Dr, Lafayette LA — shown in appointment reminder texts"
+            value={form.businessAddress}
+            onChange={(e) => setForm({ ...form, businessAddress: e.target.value })}
+          />
+        </label>
 
         <label>
           Public description

@@ -69,6 +69,9 @@ export default function NotaryDetailPage() {
         <dt>Twilio phone number</dt>
         <dd>{notary.twilioPhoneNumber || '—'}</dd>
 
+        <dt>Business address</dt>
+        <dd>{notary.businessAddress || '—'}</dd>
+
         <dt>Stripe customer</dt>
         <dd>{notary.stripeCustomerId || 'Not connected yet'}</dd>
 
