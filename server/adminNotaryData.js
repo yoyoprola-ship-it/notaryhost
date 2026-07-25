@@ -83,7 +83,12 @@ async function getTwilioStats(startDate, endDate) {
   const accountSid = process.env.TWILIO_ACCOUNT_SID
   const authToken = process.env.TWILIO_AUTH_TOKEN
   const rawPhone = process.env.TWILIO_PHONE_NUMBER_HOST || ''
-  if (!accountSid || !authToken || !rawPhone) return { calls: 0, minutes: 0 }
+  if (!accountSid || !authToken || !rawPhone) {
+    console.warn('[getTwilioStats] missing TWILIO_ACCOUNT_SID/TWILIO_AUTH_TOKEN/TWILIO_PHONE_NUMBER_HOST', {
+      hasSid: !!accountSid, hasToken: !!authToken, hasPhone: !!rawPhone,
+    })
+    return { calls: 0, minutes: 0 }
+  }
 
   const digits = rawPhone.replace(/\D/g, '')
   const phone = digits.length === 10 ? `+1${digits}` : `+${digits}`
@@ -98,7 +103,11 @@ async function getTwilioStats(startDate, endDate) {
   try {
     while (pageUrl) {
       const res = await fetch(pageUrl, { headers: { Authorization: `Basic ${creds}` } })
-      if (!res.ok) break
+      if (!res.ok) {
+        const body = await res.text().catch(() => '')
+        console.error('[getTwilioStats] Twilio API error', { status: res.status, body: body.slice(0, 500) })
+        break
+      }
       const data = await res.json()
       for (const call of data.calls ?? []) {
         if (call.direction === 'inbound') {
@@ -108,7 +117,8 @@ async function getTwilioStats(startDate, endDate) {
       }
       pageUrl = data.next_page_uri ? `https://api.twilio.com${data.next_page_uri}` : null
     }
-  } catch {
+  } catch (err) {
+    console.error('[getTwilioStats] fetch failed', err)
     return { calls: 0, minutes: 0 }
   }
 
