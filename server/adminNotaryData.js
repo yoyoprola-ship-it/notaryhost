@@ -35,18 +35,18 @@ function docsOf(snap) {
   return snap.docs.map((d) => serialize({ id: d.id, ...d.data() }))
 }
 
-async function getPrefixOr404(notaryId, res) {
+async function getNotaryConfigOr404(notaryId, res) {
   const snap = await adminDb.doc(`notaries/${notaryId}`).get()
   if (!snap.exists) {
     res.status(404).json({ error: 'notary_not_found' })
     return null
   }
-  const prefix = snap.data().collectionPrefix
-  if (!prefix) {
+  const { collectionPrefix, twilioPhoneNumber } = snap.data()
+  if (!collectionPrefix) {
     res.status(409).json({ error: 'not_configured' })
     return null
   }
-  return prefix
+  return { prefix: collectionPrefix, twilioPhoneNumber: twilioPhoneNumber || '' }
 }
 
 // Every notary clone (e.g. notarygarcia) is its own independent App Hosting
@@ -79,12 +79,11 @@ async function countBetween(col, start, end) {
   return snap.size
 }
 
-async function getTwilioStats(startDate, endDate) {
+async function getTwilioStats(startDate, endDate, rawPhone) {
   const accountSid = process.env.TWILIO_ACCOUNT_SID
   const authToken = process.env.TWILIO_AUTH_TOKEN
-  const rawPhone = process.env.TWILIO_PHONE_NUMBER_HOST || ''
   if (!accountSid || !authToken || !rawPhone) {
-    console.warn('[getTwilioStats] missing TWILIO_ACCOUNT_SID/TWILIO_AUTH_TOKEN/TWILIO_PHONE_NUMBER_HOST', {
+    console.warn('[getTwilioStats] missing TWILIO_ACCOUNT_SID/TWILIO_AUTH_TOKEN or this notary has no twilioPhoneNumber set', {
       hasSid: !!accountSid, hasToken: !!authToken, hasPhone: !!rawPhone,
     })
     return { calls: 0, minutes: 0 }
@@ -169,14 +168,15 @@ async function grantAdminAccess(prefix) {
 }
 
 router.post('/:notaryId/grant-admin-access', requireAdmin, async (req, res) => {
-  const prefix = await getPrefixOr404(req.params.notaryId, res)
-  if (!prefix) return
-  res.json(await grantAdminAccess(prefix))
+  const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
+  if (!cfg) return
+  res.json(await grantAdminAccess(cfg.prefix))
 })
 
 router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
-  const prefix = await getPrefixOr404(req.params.notaryId, res)
-  if (!prefix) return
+  const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
+  if (!cfg) return
+  const { prefix, twilioPhoneNumber } = cfg
 
   void grantAdminAccess(prefix).catch(() => {})
 
@@ -191,8 +191,8 @@ router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
     countBetween(`${prefix}_bookings`, prev.start, prev.end),
     countBetween(`${prefix}_consultations`, cur.start, cur.end),
     countBetween(`${prefix}_consultations`, prev.start, prev.end),
-    getTwilioStats(cur.startStr, cur.endStr),
-    getTwilioStats(prev.startStr, prev.endStr),
+    getTwilioStats(cur.startStr, cur.endStr, twilioPhoneNumber),
+    getTwilioStats(prev.startStr, prev.endStr, twilioPhoneNumber),
     adminDb.collection(`${prefix}_bookings`).orderBy('slot', 'desc').limit(100).get(),
     adminDb.collection(`${prefix}_bills`).orderBy('period', 'desc').get(),
     adminDb.doc(`${prefix}_config/hours`).get(),
@@ -220,8 +220,9 @@ router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
 })
 
 router.patch('/:notaryId/bookings/:bookingId/cancel', requireAdmin, async (req, res) => {
-  const prefix = await getPrefixOr404(req.params.notaryId, res)
-  if (!prefix) return
+  const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
+  if (!cfg) return
+  const { prefix } = cfg
   await adminDb.doc(`${prefix}_bookings/${req.params.bookingId}`).update({
     status: 'cancelled',
     cancelledAt: FieldValue.serverTimestamp(),
@@ -231,8 +232,9 @@ router.patch('/:notaryId/bookings/:bookingId/cancel', requireAdmin, async (req, 
 })
 
 router.patch('/:notaryId/bills/:period/paid', requireAdmin, async (req, res) => {
-  const prefix = await getPrefixOr404(req.params.notaryId, res)
-  if (!prefix) return
+  const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
+  if (!cfg) return
+  const { prefix } = cfg
   await adminDb.doc(`${prefix}_bills/${req.params.period}`).update({
     status: 'paid',
     paidAt: FieldValue.serverTimestamp(),
@@ -241,8 +243,9 @@ router.patch('/:notaryId/bills/:period/paid', requireAdmin, async (req, res) => 
 })
 
 router.put('/:notaryId/hours', requireAdmin, async (req, res) => {
-  const prefix = await getPrefixOr404(req.params.notaryId, res)
-  if (!prefix) return
+  const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
+  if (!cfg) return
+  const { prefix } = cfg
   const { hoursByDayOfWeek, blockedDates } = req.body
   await adminDb.doc(`${prefix}_config/hours`).set(
     { hoursByDayOfWeek: hoursByDayOfWeek || {}, blockedDates: blockedDates || [], updatedAt: FieldValue.serverTimestamp() },
@@ -291,8 +294,9 @@ const DEFAULT_IVR_CONFIG = {
 }
 
 router.put('/:notaryId/ivr', requireAdmin, async (req, res) => {
-  const prefix = await getPrefixOr404(req.params.notaryId, res)
-  if (!prefix) return
+  const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
+  if (!cfg) return
+  const { prefix } = cfg
   const body = req.body || {}
   const toSave = {}
   for (const key of Object.keys(DEFAULT_IVR_CONFIG)) {

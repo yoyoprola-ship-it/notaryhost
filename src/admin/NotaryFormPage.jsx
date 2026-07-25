@@ -13,6 +13,7 @@ const emptyForm = {
   status: 'lead',
   notes: '',
   collectionPrefix: '',
+  twilioPhoneNumber: '',
 }
 
 const SLUG_PATTERN = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/
@@ -158,14 +159,24 @@ export default function NotaryFormPage() {
           </label>
         </div>
 
-        <label>
-          Data collection prefix
-          <input
-            placeholder="e.g. notarygarcia — only if this notary has its own App Hosting backend"
-            value={form.collectionPrefix}
-            onChange={(e) => setForm({ ...form, collectionPrefix: e.target.value.toLowerCase() })}
-          />
-        </label>
+        <div className="admin-form__row">
+          <label>
+            Data collection prefix
+            <input
+              placeholder="e.g. notarygarcia — only if this notary has its own App Hosting backend"
+              value={form.collectionPrefix}
+              onChange={(e) => setForm({ ...form, collectionPrefix: e.target.value.toLowerCase() })}
+            />
+          </label>
+          <label>
+            Twilio phone number
+            <input
+              placeholder="+1XXXXXXXXXX — this notary's own IVR/SMS number"
+              value={form.twilioPhoneNumber}
+              onChange={(e) => setForm({ ...form, twilioPhoneNumber: e.target.value })}
+            />
+          </label>
+        </div>
 
         <label>
           Public description
