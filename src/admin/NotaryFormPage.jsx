@@ -12,6 +12,7 @@ const emptyForm = {
   description: '',
   status: 'lead',
   notes: '',
+  collectionPrefix: '',
 }
 
 const SLUG_PATTERN = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/
@@ -156,6 +157,15 @@ export default function NotaryFormPage() {
             </select>
           </label>
         </div>
+
+        <label>
+          Data collection prefix
+          <input
+            placeholder="e.g. notarygarcia — only if this notary has its own App Hosting backend"
+            value={form.collectionPrefix}
+            onChange={(e) => setForm({ ...form, collectionPrefix: e.target.value.toLowerCase() })}
+          />
+        </label>
 
         <label>
           Public description

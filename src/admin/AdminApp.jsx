@@ -6,6 +6,7 @@ import LoginPage from './LoginPage'
 import NotariesListPage from './NotariesListPage'
 import NotaryFormPage from './NotaryFormPage'
 import NotaryDetailPage from './NotaryDetailPage'
+import NotaryOperationsPage from './NotaryOperationsPage'
 import UsersListPage from './UsersListPage'
 import UserFormPage from './UserFormPage'
 import './admin.css'
@@ -20,6 +21,7 @@ export default function AdminApp() {
             <Route index element={<NotariesListPage />} />
             <Route path="notaries/new" element={<NotaryFormPage />} />
             <Route path="notaries/:id" element={<NotaryDetailPage />} />
+            <Route path="notaries/:id/operations" element={<NotaryOperationsPage />} />
             <Route path="notaries/:id/edit" element={<NotaryFormPage />} />
             <Route path="users" element={<UsersListPage />} />
             <Route path="users/new" element={<UserFormPage />} />

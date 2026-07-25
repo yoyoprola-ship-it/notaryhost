@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import twilio from 'twilio'
 import adminLoginRouter from './server/adminLogin.js'
 import adminUsersRouter from './server/adminUsers.js'
+import adminNotaryDataRouter from './server/adminNotaryData.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const { VoiceResponse } = twilio.twiml
@@ -125,6 +126,7 @@ app.post('/voice/recording', (req, res) => {
 
 app.use('/api/admin-login', adminLoginRouter)
 app.use('/api/admin/users', adminUsersRouter)
+app.use('/api/admin/notaries', adminNotaryDataRouter)
 
 // Hashed filenames change on every build, so they're safe to cache forever;
 // index.html/the SPA fallback must never be cached, or a browser/CDN can keep

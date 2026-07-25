@@ -36,6 +36,9 @@ export default function NotaryDetailPage() {
           <Link className="admin-btn" to={`/admin/notaries/${id}/edit`}>
             Edit
           </Link>
+          <Link className="admin-btn" to={`/admin/notaries/${id}/operations`}>
+            Operations
+          </Link>
           <button className="admin-btn admin-btn--danger" onClick={handleDelete} disabled={deleting}>
             {deleting ? 'Deleting…' : 'Delete'}
           </button>
@@ -59,6 +62,9 @@ export default function NotaryDetailPage() {
 
         <dt>Reserved subdomain</dt>
         <dd>{notary.subdomainSlug || '—'}</dd>
+
+        <dt>Data collection prefix</dt>
+        <dd>{notary.collectionPrefix || '—'}</dd>
 
         <dt>Stripe customer</dt>
         <dd>{notary.stripeCustomerId || 'Not connected yet'}</dd>
