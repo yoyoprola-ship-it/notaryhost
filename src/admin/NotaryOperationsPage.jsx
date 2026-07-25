@@ -21,6 +21,15 @@ const DAYS = [
 
 const ALL_HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 
+const TABS = [
+  ['overview', 'Overview'],
+  ['bookings', 'Bookings'],
+  ['billing', 'Billing'],
+  ['consultations', 'Consultations'],
+  ['hours', 'Hours'],
+  ['ivr', 'IVR script'],
+]
+
 const IVR_FIELDS = [
   ['intro', 'Intro greeting'],
   ['langPrompt', 'Language prompt'],
@@ -52,6 +61,7 @@ export default function NotaryOperationsPage() {
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [tab, setTab] = useState('overview')
 
   function load() {
     setError('')
@@ -93,12 +103,24 @@ export default function NotaryOperationsPage() {
 
       {data.configured && (
         <>
-          <MonthlyStats stats={data.stats} />
-          <BookingsSection notaryId={id} bookings={data.bookings} onChange={load} />
-          <BillingSection notaryId={id} bills={data.bills} onChange={load} />
-          <ConsultationsSection consultations={data.consultations} />
-          <HoursSection notaryId={id} hours={data.hours} />
-          <IvrSection notaryId={id} ivrConfig={data.ivrConfig} />
+          <nav className="admin-tabs">
+            {TABS.map(([key, label]) => (
+              <button
+                key={key}
+                className={`admin-tabs__link${tab === key ? ' admin-tabs__link--active' : ''}`}
+                onClick={() => setTab(key)}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+
+          {tab === 'overview' && <MonthlyStats stats={data.stats} />}
+          {tab === 'bookings' && <BookingsSection notaryId={id} bookings={data.bookings} onChange={load} />}
+          {tab === 'billing' && <BillingSection notaryId={id} bills={data.bills} onChange={load} />}
+          {tab === 'consultations' && <ConsultationsSection consultations={data.consultations} />}
+          {tab === 'hours' && <HoursSection notaryId={id} hours={data.hours} />}
+          {tab === 'ivr' && <IvrSection notaryId={id} ivrConfig={data.ivrConfig} />}
         </>
       )}
     </div>
