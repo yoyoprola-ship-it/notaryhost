@@ -13,9 +13,6 @@ export default function AdminNav() {
         <NavLink to="/admin" end className={linkClass}>
           Notaries
         </NavLink>
-        <NavLink to="/admin/users" className={linkClass}>
-          Users
-        </NavLink>
       </div>
       <button className="admin-btn" onClick={() => signOut(auth)}>
         Sign out

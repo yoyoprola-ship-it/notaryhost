@@ -6,20 +6,8 @@ service cloud.firestore {
         && request.auth.token.email == 'yoyoprola@gmail.com';
     }
 
-    function isNotaryOwner(notaryId) {
-      return request.auth != null
-        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.notaryId == notaryId;
-    }
-
     match /notaries/{notaryId} {
-      allow read: if isAdmin() || isNotaryOwner(notaryId);
-      allow write: if isAdmin();
-    }
-
-    match /users/{uid} {
-      allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
-      allow write: if isAdmin();
+      allow read, write: if isAdmin();
     }
 
     match /publicNotaryProfiles/{slug} {
@@ -28,11 +16,11 @@ service cloud.firestore {
     }
 
     // notarygarcia — independent App Hosting backend sharing this project.
-    // Own admin/owner accounts, prefixed to avoid colliding with the
-    // central `users` collection above. Bookings/config are read and
-    // (bookings status only) updated directly from its client-side admin
-    // panel; everything else in that app goes through server API routes
-    // using the Admin SDK, which bypasses these rules entirely.
+    // Own admin/owner accounts, prefixed to avoid colliding with central
+    // collections. Bookings/config are read and (bookings status only)
+    // updated directly from its client-side admin panel; everything else
+    // in that app goes through server API routes using the Admin SDK,
+    // which bypasses these rules entirely.
     match /notarygarcia_users/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow write: if false;
