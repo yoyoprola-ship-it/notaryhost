@@ -27,6 +27,30 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // notarygarcia — independent App Hosting backend sharing this project.
+    // Own admin/owner accounts, prefixed to avoid colliding with the
+    // central `users` collection above. Bookings/config are read and
+    // (bookings status only) updated directly from its client-side admin
+    // panel; everything else in that app goes through server API routes
+    // using the Admin SDK, which bypasses these rules entirely.
+    match /notarygarcia_users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /notarygarcia_bookings/{bookingId} {
+      allow read, update: if request.auth != null
+        && exists(/databases/$(database)/documents/notarygarcia_users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/notarygarcia_users/$(request.auth.uid)).data.role == 'admin';
+      allow create, delete: if false;
+    }
+
+    match /notarygarcia_config/{docId} {
+      allow read, write: if request.auth != null
+        && exists(/databases/$(database)/documents/notarygarcia_users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/notarygarcia_users/$(request.auth.uid)).data.role == 'admin';
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
