@@ -258,6 +258,16 @@
   box-shadow: 0 1px 3px rgba(23, 23, 53, 0.08);
 }
 
+.admin-stat-card--accent {
+  background: var(--gold-soft);
+}
+
+.admin-stat-card__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
 .admin-stat-card__label {
   font-size: 0.78rem;
   font-weight: 600;
