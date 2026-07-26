@@ -26,6 +26,7 @@ const TABS = [
   ['bookings', 'Bookings'],
   ['billing', 'Billing'],
   ['consultations', 'Consultations'],
+  ['visits', 'Visits'],
   ['hours', 'Hours'],
   ['ivr', 'IVR script'],
 ]
@@ -139,6 +140,7 @@ export default function NotaryOperationsPage() {
           {tab === 'bookings' && <BookingsSection notaryId={id} bookings={data.bookings} onChange={load} />}
           {tab === 'billing' && <BillingSection notaryId={id} bills={data.bills} onChange={load} />}
           {tab === 'consultations' && <ConsultationsSection consultations={data.consultations} />}
+          {tab === 'visits' && <VisitsSection visits={data.visits} />}
           {tab === 'hours' && <HoursSection notaryId={id} hours={data.hours} />}
           {tab === 'ivr' && <IvrSection notaryId={id} ivrConfig={data.ivrConfig} />}
         </>
@@ -344,6 +346,39 @@ function ConsultationsSection({ consultations }) {
               <td>{c.duration}s</td>
               <td>{fmtDate(c.createdAt)}</td>
               <td>{c.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  )
+}
+
+function VisitsSection({ visits }) {
+  return (
+    <>
+      <h2 className="admin-section-title">Website visits</h2>
+      <div className="admin-stats">
+        <div className="admin-stat-card"><p className="admin-stat-card__label">Today</p><p className="admin-stat-card__value">{visits.today}</p></div>
+        <div className="admin-stat-card admin-stat-card--accent"><p className="admin-stat-card__label">Last 7 days</p><p className="admin-stat-card__value">{visits.last7}</p></div>
+        <div className="admin-stat-card"><p className="admin-stat-card__label">Last 30 days</p><p className="admin-stat-card__value">{visits.last30}</p></div>
+        <div className="admin-stat-card"><p className="admin-stat-card__label">Last 90 days</p><p className="admin-stat-card__value">{visits.total}</p></div>
+      </div>
+      <table className="admin-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Visits</th>
+          </tr>
+        </thead>
+        <tbody>
+          {visits.daily.length === 0 && (
+            <tr><td colSpan={2} className="admin-muted">No visits recorded yet.</td></tr>
+          )}
+          {visits.daily.map((d) => (
+            <tr key={d.date}>
+              <td>{d.date}</td>
+              <td>{d.count}</td>
             </tr>
           ))}
         </tbody>

@@ -185,7 +185,7 @@ router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
 
   const [
     bookingsCur, bookingsPrev, consultsCur, consultsPrev, twilioCur, twilioPrev,
-    bookingsSnap, billsSnap, hoursSnap, ivrSnap, consultsSnap,
+    bookingsSnap, billsSnap, hoursSnap, ivrSnap, consultsSnap, visitsSnap,
   ] = await Promise.all([
     countBetween(`${prefix}_bookings`, cur.start, cur.end),
     countBetween(`${prefix}_bookings`, prev.start, prev.end),
@@ -198,7 +198,23 @@ router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
     adminDb.doc(`${prefix}_config/hours`).get(),
     adminDb.doc(`${prefix}_ivr_config/default`).get(),
     adminDb.collection(`${prefix}_consultations`).orderBy('createdAt', 'desc').limit(50).get(),
+    adminDb.collection(`${prefix}_visits`).orderBy('date', 'desc').limit(90).get(),
   ])
+
+  const visitsDaily = visitsSnap.docs.map((d) => ({ date: d.data().date, count: d.data().count || 0 }))
+  // Visit docs are keyed by date in America/Chicago (see notarygarcia's
+  // trackVisit) — match that here instead of UTC so "today" lines up.
+  const ctDate = (ms) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(ms))
+  const todayStr = ctDate(Date.now())
+  const last7Str = ctDate(Date.now() - 6 * 24 * 60 * 60 * 1000)
+  const last30Str = ctDate(Date.now() - 29 * 24 * 60 * 60 * 1000)
+  const visits = {
+    today: visitsDaily.find((d) => d.date === todayStr)?.count ?? 0,
+    last7: visitsDaily.filter((d) => d.date >= last7Str).reduce((s, d) => s + d.count, 0),
+    last30: visitsDaily.filter((d) => d.date >= last30Str).reduce((s, d) => s + d.count, 0),
+    total: visitsDaily.reduce((s, d) => s + d.count, 0),
+    daily: visitsDaily,
+  }
 
   void Promise.all([
     saveBill(prefix, cur.period, cur.label, bookingsCur, twilioCur.minutes, cur.dueDate),
@@ -216,6 +232,7 @@ router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
     hours: hoursSnap.exists ? serialize(hoursSnap.data()) : { hoursByDayOfWeek: {}, blockedDates: [] },
     ivrConfig: { ...DEFAULT_IVR_CONFIG, ...(ivrSnap.exists ? serialize(ivrSnap.data()) : {}) },
     consultations: docsOf(consultsSnap),
+    visits,
   })
 })
 
