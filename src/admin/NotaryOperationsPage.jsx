@@ -178,13 +178,13 @@ function MonthCard({ m, accent }) {
 }
 
 function RevenueCard({ m, accent }) {
-  const bookingFee = m.bookings * 0.85
+  const bookingFee = m.bookings * 0.52
   const minutesFee = m.minutes * 0.59
   const total = bookingFee + minutesFee
   return (
     <div className={`admin-stat-card${accent ? ' admin-stat-card--accent' : ''}`}>
       <p className="admin-stat-card__label">{m.label} — Revenue</p>
-      <p className="admin-muted">{m.bookings} bookings × $0.85 = {fmtMoney(bookingFee)}</p>
+      <p className="admin-muted">{m.bookings} bookings × $0.52 = {fmtMoney(bookingFee)}</p>
       <p className="admin-muted">{m.minutes} min × $0.59 = {fmtMoney(minutesFee)}</p>
       <p className="admin-stat-card__value">{fmtMoney(total)}</p>
     </div>

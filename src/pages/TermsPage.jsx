@@ -38,7 +38,7 @@ export default function TermsPage() {
         <p>Current plans (subject to change with notice):</p>
         <ul>
           <li><strong>Website + dashboard</strong> — $64/month, unlimited visits</li>
-          <li><strong>Booking system</strong> — $19/month, includes up to 25 bookings/month; $0.85 per additional booking</li>
+          <li><strong>Booking system</strong> — $19/month, includes up to 40 bookings/month; $0.52 per additional booking</li>
           <li><strong>Phone robot (IVR)</strong> — $25/month, includes up to 50 minutes/month; $0.59 per additional minute</li>
           <li><strong>Bundle (all three)</strong> — $99/month</li>
         </ul>

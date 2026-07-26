@@ -125,7 +125,7 @@ async function getTwilioStats(startDate, endDate, rawPhone) {
 }
 
 async function saveBill(prefix, period, label, bookings, minutes, dueDate) {
-  const bookingFee = parseFloat((bookings * 0.85).toFixed(2))
+  const bookingFee = parseFloat((bookings * 0.52).toFixed(2))
   const minutesFee = parseFloat((minutes * 0.59).toFixed(2))
   const total = parseFloat((bookingFee + minutesFee).toFixed(2))
   const ref = adminDb.collection(`${prefix}_bills`).doc(period)

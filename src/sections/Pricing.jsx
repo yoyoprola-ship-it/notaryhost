@@ -13,8 +13,8 @@ const plans = [
     icon: 'calendar',
     title: 'Booking system',
     price: '$19',
-    text: 'Includes up to 25 signings booked per month.',
-    note: 'Additional: $0.85 per booking.',
+    text: 'Includes up to 40 signings booked per month.',
+    note: 'Additional: $0.52 per booking.',
   },
   {
     icon: 'phone',
