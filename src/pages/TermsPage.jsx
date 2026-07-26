@@ -43,11 +43,20 @@ export default function TermsPage() {
           <li><strong>Bundle (all three)</strong> — $99/month</li>
         </ul>
         <p>
-          Subscriptions bill monthly in advance and renew automatically until cancelled.
-          Usage-based fees (extra bookings, extra minutes) bill in arrears. You can cancel anytime
-          from your dashboard or by emailing us; cancellation stops future billing but we don&apos;t
-          provide refunds for the current billing period. We&apos;ll give reasonable notice before
-          any price changes.
+          These fees are for a <strong>subscription to use the Service</strong> — you&apos;re
+          renting your website, booking system, and phone robot for as long as you keep paying;
+          you don&apos;t own the software, the hosting, or the subdomain. Subscriptions bill
+          monthly in advance and renew automatically until cancelled. Usage-based fees (extra
+          bookings, extra minutes) bill in arrears. You can cancel anytime from your dashboard or
+          by emailing us; cancellation stops future billing but we don&apos;t provide refunds for
+          the current billing period. We&apos;ll give reasonable notice before any price changes.
+        </p>
+        <p>
+          <strong>Non-payment.</strong> If a payment isn&apos;t received by its due date, your
+          website, booking system, and phone robot may be suspended or cancelled immediately and
+          without further notice, until the account is brought current. We&apos;re not
+          responsible for any loss — missed appointments, calls, or business — that results from
+          a suspension caused by non-payment.
         </p>
 
         <h2>5. Your responsibilities</h2>

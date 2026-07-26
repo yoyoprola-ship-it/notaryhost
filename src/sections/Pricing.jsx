@@ -6,7 +6,7 @@ const plans = [
     icon: 'globe',
     title: 'Website + dashboard',
     price: '$64',
-    text: 'Includes subdomain, hosting, and admin dashboard.',
+    text: 'We design and build your custom website for you — no separate build fee. Includes subdomain, hosting, and admin dashboard.',
     note: 'Unlimited visits.',
   },
   {
