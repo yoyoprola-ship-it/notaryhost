@@ -41,12 +41,54 @@ async function getNotaryConfigOr404(notaryId, res) {
     res.status(404).json({ error: 'notary_not_found' })
     return null
   }
-  const { collectionPrefix, twilioPhoneNumber } = snap.data()
+  const { collectionPrefix, twilioPhoneNumber, products } = snap.data()
   if (!collectionPrefix) {
     res.status(409).json({ error: 'not_configured' })
     return null
   }
-  return { prefix: collectionPrefix, twilioPhoneNumber: twilioPhoneNumber || '' }
+  return { prefix: collectionPrefix, twilioPhoneNumber: twilioPhoneNumber || '', products: products || [] }
+}
+
+// ─── Pricing — must match the plan cards on notaryhost.com and Terms ────
+const PRICING = {
+  website: { base: 64 },
+  booking: { base: 19, included: 40, rate: 0.52 },
+  ivr: { base: 25, included: 50, rate: 0.59 },
+  bundleAll: 99, // website + booking + ivr together
+}
+
+// Computes what a notary actually owes for a period: base subscription
+// fee for whichever packages they have (bundle price if they have all
+// three), plus overage only for usage beyond each package's included
+// allotment. Previously this just multiplied total bookings/minutes by
+// the per-unit rate with no base fee and no included allotment at all.
+function computeBill(products, bookings, minutes) {
+  const has = (p) => products.includes(p)
+  const hasAll = has('website') && has('booking') && has('ivr')
+
+  let baseFee = 0
+  if (hasAll) {
+    baseFee = PRICING.bundleAll
+  } else {
+    if (has('website')) baseFee += PRICING.website.base
+    if (has('booking')) baseFee += PRICING.booking.base
+    if (has('ivr')) baseFee += PRICING.ivr.base
+  }
+
+  const includedBookings = has('booking') ? PRICING.booking.included : 0
+  const extraBookings = has('booking') ? Math.max(0, bookings - includedBookings) : 0
+  const bookingFee = parseFloat((extraBookings * PRICING.booking.rate).toFixed(2))
+
+  const includedMinutes = has('ivr') ? PRICING.ivr.included : 0
+  const extraMinutes = has('ivr') ? Math.max(0, minutes - includedMinutes) : 0
+  const minutesFee = parseFloat((extraMinutes * PRICING.ivr.rate).toFixed(2))
+
+  const total = parseFloat((baseFee + bookingFee + minutesFee).toFixed(2))
+
+  return {
+    baseFee, includedBookings, extraBookings, bookingFee,
+    includedMinutes, extraMinutes, minutesFee, total,
+  }
 }
 
 // Every notary clone (e.g. notarygarcia) is its own independent App Hosting
@@ -124,16 +166,14 @@ async function getTwilioStats(startDate, endDate, rawPhone) {
   return { calls: totalCalls, minutes: Math.round((totalSeconds / 60) * 10) / 10 }
 }
 
-async function saveBill(prefix, period, label, bookings, minutes, dueDate) {
-  const bookingFee = parseFloat((bookings * 0.52).toFixed(2))
-  const minutesFee = parseFloat((minutes * 0.59).toFixed(2))
-  const total = parseFloat((bookingFee + minutesFee).toFixed(2))
+async function saveBill(prefix, products, period, label, bookings, minutes, dueDate) {
+  const bill = computeBill(products, bookings, minutes)
   const ref = adminDb.collection(`${prefix}_bills`).doc(period)
   const snap = await ref.get()
   if (snap.exists && snap.data()?.status === 'paid') return
   const existing = snap.data() ?? {}
   await ref.set({
-    period, label, bookings, minutes, bookingFee, minutesFee, total, dueDate,
+    period, label, bookings, minutes, dueDate, ...bill,
     status: existing.status ?? 'pending',
     paidAt: existing.paidAt ?? null,
     createdAt: existing.createdAt ?? FieldValue.serverTimestamp(),
@@ -176,7 +216,7 @@ router.post('/:notaryId/grant-admin-access', requireAdmin, async (req, res) => {
 router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
   const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
   if (!cfg) return
-  const { prefix, twilioPhoneNumber } = cfg
+  const { prefix, twilioPhoneNumber, products } = cfg
 
   void grantAdminAccess(prefix).catch(() => {})
 
@@ -217,15 +257,19 @@ router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
   }
 
   void Promise.all([
-    saveBill(prefix, cur.period, cur.label, bookingsCur, twilioCur.minutes, cur.dueDate),
-    saveBill(prefix, prev.period, prev.label, bookingsPrev, twilioPrev.minutes, prev.dueDate),
+    saveBill(prefix, products, cur.period, cur.label, bookingsCur, twilioCur.minutes, cur.dueDate),
+    saveBill(prefix, products, prev.period, prev.label, bookingsPrev, twilioPrev.minutes, prev.dueDate),
   ]).catch(() => {})
+
+  const curBill = computeBill(products, bookingsCur, twilioCur.minutes)
+  const prevBill = computeBill(products, bookingsPrev, twilioPrev.minutes)
 
   res.json({
     configured: true,
+    products,
     stats: {
-      current: { label: cur.label, bookings: bookingsCur, calls: twilioCur.calls, consults: consultsCur, minutes: twilioCur.minutes, dueDate: cur.dueDate },
-      previous: { label: prev.label, bookings: bookingsPrev, calls: twilioPrev.calls, consults: consultsPrev, minutes: twilioPrev.minutes, dueDate: prev.dueDate },
+      current: { label: cur.label, bookings: bookingsCur, calls: twilioCur.calls, consults: consultsCur, minutes: twilioCur.minutes, dueDate: cur.dueDate, ...curBill },
+      previous: { label: prev.label, bookings: bookingsPrev, calls: twilioPrev.calls, consults: consultsPrev, minutes: twilioPrev.minutes, dueDate: prev.dueDate, ...prevBill },
     },
     bookings: docsOf(bookingsSnap),
     bills: docsOf(billsSnap),

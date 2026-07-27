@@ -180,15 +180,21 @@ function MonthCard({ m, accent }) {
 }
 
 function RevenueCard({ m, accent }) {
-  const bookingFee = m.bookings * 0.52
-  const minutesFee = m.minutes * 0.59
-  const total = bookingFee + minutesFee
   return (
     <div className={`admin-stat-card${accent ? ' admin-stat-card--accent' : ''}`}>
       <p className="admin-stat-card__label">{m.label} — Revenue</p>
-      <p className="admin-muted">{m.bookings} bookings × $0.52 = {fmtMoney(bookingFee)}</p>
-      <p className="admin-muted">{m.minutes} min × $0.59 = {fmtMoney(minutesFee)}</p>
-      <p className="admin-stat-card__value">{fmtMoney(total)}</p>
+      <p className="admin-muted">Base plan: {fmtMoney(m.baseFee)}</p>
+      <p className="admin-muted">
+        Bookings: {m.bookings} used
+        {m.includedBookings > 0 ? ` (${m.includedBookings} included)` : ''}
+        {m.extraBookings > 0 ? ` · ${m.extraBookings} extra × $0.52 = ${fmtMoney(m.bookingFee)}` : ''}
+      </p>
+      <p className="admin-muted">
+        Minutes: {m.minutes} used
+        {m.includedMinutes > 0 ? ` (${m.includedMinutes} included)` : ''}
+        {m.extraMinutes > 0 ? ` · ${m.extraMinutes} extra × $0.59 = ${fmtMoney(m.minutesFee)}` : ''}
+      </p>
+      <p className="admin-stat-card__value">{fmtMoney(m.total)}</p>
     </div>
   )
 }
@@ -282,6 +288,7 @@ function BillingSection({ notaryId, bills, onChange }) {
         <thead>
           <tr>
             <th>Period</th>
+            <th>Base plan</th>
             <th>Bookings</th>
             <th>Minutes</th>
             <th>Total</th>
@@ -292,13 +299,24 @@ function BillingSection({ notaryId, bills, onChange }) {
         </thead>
         <tbody>
           {bills.length === 0 && (
-            <tr><td colSpan={7} className="admin-muted">No bills yet.</td></tr>
+            <tr><td colSpan={8} className="admin-muted">No bills yet.</td></tr>
           )}
           {bills.map((b) => (
             <tr key={b.id}>
               <td>{b.label}</td>
-              <td>{b.bookings}</td>
-              <td>{b.minutes}</td>
+              <td>{fmtMoney(b.baseFee)}</td>
+              <td>
+                {b.bookings}{b.includedBookings > 0 ? ` / ${b.includedBookings}` : ''}
+                {b.extraBookings > 0 && (
+                  <span className="admin-muted"> (+{b.extraBookings} = {fmtMoney(b.bookingFee)})</span>
+                )}
+              </td>
+              <td>
+                {b.minutes}{b.includedMinutes > 0 ? ` / ${b.includedMinutes}` : ''}
+                {b.extraMinutes > 0 && (
+                  <span className="admin-muted"> (+{b.extraMinutes} = {fmtMoney(b.minutesFee)})</span>
+                )}
+              </td>
               <td>{fmtMoney(b.total)}</td>
               <td>{b.dueDate}</td>
               <td><span className={`admin-status admin-status--${b.status === 'paid' ? 'active' : 'onboarding'}`}>{b.status}</span></td>
