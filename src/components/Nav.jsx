@@ -2,10 +2,20 @@ import { useState } from 'react'
 import Icon from './Icon'
 
 const links = [
+  { href: '#top', label: 'Home' },
   { href: '#services', label: 'Services' },
-  { href: '#how-it-works', label: 'How it works' },
-  { href: '#pricing', label: 'Pricing' },
+  { href: '#website', label: 'Website' },
+  { href: '#confirmations', label: 'Confirmations' },
+  { href: '#how-it-works', label: 'Phone robot (IVR)' },
+  { href: '#dashboard', label: 'Dashboard' },
+  { href: '#tech', label: 'Technology' },
+  { href: '#who-for', label: "Who it's for" },
+  { href: '#included', label: "What's included" },
+  { href: '#benefits', label: 'Benefits' },
   { href: '#results', label: 'Results' },
+  { href: '#pricing', label: 'Pricing' },
+  { href: '#comparison', label: 'Comparison' },
+  { href: '#contact', label: 'Get in touch' },
 ]
 
 export default function Nav() {
@@ -21,30 +31,17 @@ export default function Nav() {
           <span>NotaryHost</span>
         </a>
 
-        <ul className="site-nav__links">
-          {links.map((link) => (
-            <li key={link.href}>
-              <a href={link.href}>{link.label}</a>
-            </li>
-          ))}
-        </ul>
-
-        <div className="site-nav__actions">
-          <a className="btn btn--ghost" href="#contact">
-            Get in touch
-          </a>
-          <button
-            type="button"
-            className="site-nav__toggle"
-            aria-label="Toggle menu"
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-        </div>
+        <button
+          type="button"
+          className="site-nav__toggle"
+          aria-label="Toggle menu"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
       </div>
 
       {open && (
@@ -57,11 +54,6 @@ export default function Nav() {
                 </a>
               </li>
             ))}
-            <li>
-              <a href="#contact" onClick={() => setOpen(false)}>
-                Get in touch
-              </a>
-            </li>
           </ul>
         </div>
       )}

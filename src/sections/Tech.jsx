@@ -26,7 +26,7 @@ const items = [
 
 export default function Tech() {
   return (
-    <section className="section section--dark">
+    <section className="section section--dark" id="tech">
       <div className="section-inner">
         <Reveal>
           <h2 className="section__title">

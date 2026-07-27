@@ -16,7 +16,7 @@ const stats = [
 
 export default function Dashboard() {
   return (
-    <section className="section">
+    <section className="section" id="dashboard">
       <div className="section-inner">
         <Reveal>
           <h2 className="section__title">

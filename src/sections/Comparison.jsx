@@ -24,7 +24,7 @@ const rows = [
 
 export default function Comparison() {
   return (
-    <section className="section">
+    <section className="section" id="comparison">
       <div className="section-inner">
         <Reveal>
           <h2 className="section__title">How you compare to the market</h2>

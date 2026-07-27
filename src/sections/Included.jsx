@@ -19,7 +19,7 @@ const right = [
 
 export default function Included() {
   return (
-    <section className="section section--dark">
+    <section className="section section--dark" id="included">
       <div className="section-inner">
         <Reveal>
           <h2 className="section__title">What you get</h2>

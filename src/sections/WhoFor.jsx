@@ -12,7 +12,7 @@ const items = [
 
 export default function WhoFor() {
   return (
-    <section className="section">
+    <section className="section" id="who-for">
       <div className="section-inner">
         <Reveal>
           <h2 className="section__title">Built for every kind of notary work</h2>

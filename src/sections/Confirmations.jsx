@@ -3,7 +3,7 @@ import Reveal from '../components/Reveal'
 
 export default function Confirmations() {
   return (
-    <section className="section">
+    <section className="section" id="confirmations">
       <div className="section-inner">
         <Reveal>
           <h2 className="section__title">Confirmations that never fail</h2>

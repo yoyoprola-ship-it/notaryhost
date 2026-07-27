@@ -10,7 +10,7 @@ const bullets = [
 
 export default function WebsiteFeature() {
   return (
-    <section className="split">
+    <section className="split" id="website">
       <div className="split__panel split__panel--dark">
         <Reveal>
           <span className="icon-badge icon-badge--lg">

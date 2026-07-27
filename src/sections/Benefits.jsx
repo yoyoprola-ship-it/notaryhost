@@ -46,7 +46,7 @@ const benefits = [
 
 export default function Benefits() {
   return (
-    <section className="section">
+    <section className="section" id="benefits">
       <div className="section-inner">
         <Reveal>
           <h2 className="section__title">What this means for your business</h2>
