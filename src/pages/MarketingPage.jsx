@@ -8,6 +8,7 @@ import Dashboard from '../sections/Dashboard'
 import Tech from '../sections/Tech'
 import WhoFor from '../sections/WhoFor'
 import Included from '../sections/Included'
+import Benefits from '../sections/Benefits'
 import CaseStudy from '../sections/CaseStudy'
 import Pricing from '../sections/Pricing'
 import Comparison from '../sections/Comparison'
@@ -27,6 +28,7 @@ export default function MarketingPage() {
       <Tech />
       <WhoFor />
       <Included />
+      <Benefits />
       <CaseStudy />
       <Pricing />
       <Comparison />
