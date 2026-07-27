@@ -130,18 +130,17 @@ export default function Cta() {
                 onChange={(e) => setName(e.target.value)}
                 maxLength={120}
               />
-              <div className="cta__phone-row">
-                <input
-                  type="tel"
-                  placeholder="(337) 555-0100"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  maxLength={14}
-                />
-                <button className="btn btn--primary" type="submit" disabled={loading}>
-                  {loading ? 'Sending…' : 'Verify phone to schedule'}
-                </button>
-              </div>
+              <input
+                type="tel"
+                className="cta__phone"
+                placeholder="(337) 555-0100"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                maxLength={14}
+              />
+              <button className="btn btn--primary cta__submit" type="submit" disabled={loading}>
+                {loading ? 'Sending…' : 'Verify phone to schedule'}
+              </button>
               {error && <p className="cta__error">{error}</p>}
               <div id="cta-recaptcha" />
             </form>

@@ -1142,6 +1142,28 @@
   color: #767aa0;
 }
 
+.cta__phone {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+
+.cta__phone::placeholder {
+  color: #767aa0;
+}
+
+.cta__submit {
+  display: block;
+  width: 100%;
+  text-align: center;
+  white-space: normal;
+}
+
 .cta__phone-row {
   display: flex;
   gap: 10px;
