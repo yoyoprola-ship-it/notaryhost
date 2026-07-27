@@ -3,14 +3,14 @@ import Reveal from '../components/Reveal'
 
 const steps = [
   {
-    icon: 'check',
-    title: 'Hears their appointment status',
-    text: 'If the caller already has a booking, the system checks their number and reads back the date and time in both English and Spanish — before anything else.',
-  },
-  {
     icon: 'globe',
     title: 'Chooses their language',
     text: 'Spanish or English, based on their preference.',
+  },
+  {
+    icon: 'check',
+    title: 'Hears their appointment status',
+    text: 'If the caller already has a booking, the system checks their number and reads back the date and time — right in the language they just chose.',
   },
   {
     icon: 'calendar',
@@ -42,8 +42,8 @@ export default function IVR() {
           <p className="section__lead">
             A bilingual automated system that answers your calls in English
             and Spanish — every time, no exceptions. It even recognizes
-            returning callers and tells them their appointment details
-            before they press a single key.
+            returning callers and reads back their appointment details
+            as soon as they pick a language.
           </p>
         </Reveal>
         <div className="steps">
