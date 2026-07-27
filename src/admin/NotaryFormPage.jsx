@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PRODUCT_OPTIONS, STATUS_OPTIONS, createNotary, getNotary, updateNotary } from './notariesApi'
+import PhotoCropper from './PhotoCropper'
 
 const emptyForm = {
   businessName: '',
@@ -17,6 +18,9 @@ const emptyForm = {
   businessAddress: '',
   location: '',
   photoUrl: '',
+  photoCropX: 0.5,
+  photoCropY: 0.5,
+  photoCropZoom: 1,
 }
 
 const SLUG_PATTERN = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/
@@ -208,6 +212,18 @@ export default function NotaryFormPage() {
             />
           </label>
         </div>
+
+        {form.photoUrl && (
+          <PhotoCropper
+            src={form.photoUrl}
+            x={form.photoCropX}
+            y={form.photoCropY}
+            zoom={form.photoCropZoom}
+            onChange={({ x, y, zoom }) =>
+              setForm({ ...form, photoCropX: x, photoCropY: y, photoCropZoom: zoom })
+            }
+          />
+        )}
 
         <label>
           Public description

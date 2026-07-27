@@ -1262,7 +1262,7 @@
 
 .directory-card__photo {
   width: 100%;
-  height: 220px;
+  aspect-ratio: 8 / 5;
   object-fit: cover;
   display: block;
   background: var(--navy-800);

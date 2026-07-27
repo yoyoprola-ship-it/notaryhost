@@ -28,6 +28,9 @@ function publicProfileFields(notaryId, data) {
     ownerEmail: data.ownerEmail,
     location: data.location || '',
     photoUrl: data.photoUrl || '',
+    photoCropX: data.photoCropX ?? 0.5,
+    photoCropY: data.photoCropY ?? 0.5,
+    photoCropZoom: data.photoCropZoom ?? 1,
     status: data.status || '',
     notaryId,
   }

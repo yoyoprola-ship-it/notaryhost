@@ -483,3 +483,56 @@
   cursor: pointer;
   align-self: flex-start;
 }
+
+/* photo cropper */
+
+.photo-cropper {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 8 / 5;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--navy-900);
+  cursor: grab;
+  touch-action: none;
+}
+
+.photo-cropper:active {
+  cursor: grabbing;
+}
+
+.photo-cropper img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.photo-cropper-wrap {
+  margin-bottom: 8px;
+}
+
+.photo-cropper__zoom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 360px;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.photo-cropper__zoom input {
+  flex: 1;
+}
+
+.photo-cropper__hint {
+  max-width: 360px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 6px;
+}

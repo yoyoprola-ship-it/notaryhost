@@ -62,7 +62,15 @@ export default function DirectoryPage() {
                   rel="noopener noreferrer"
                 >
                   {n.photoUrl ? (
-                    <img className="directory-card__photo" src={n.photoUrl} alt={n.businessName} />
+                    <img
+                      className="directory-card__photo"
+                      src={n.photoUrl}
+                      alt={n.businessName}
+                      style={{
+                        objectPosition: `${(n.photoCropX ?? 0.5) * 100}% ${(n.photoCropY ?? 0.5) * 100}%`,
+                        transform: `scale(${n.photoCropZoom ?? 1})`,
+                      }}
+                    />
                   ) : (
                     <div className="directory-card__photo directory-card__photo--placeholder">
                       <Icon name="seal" size={28} />
