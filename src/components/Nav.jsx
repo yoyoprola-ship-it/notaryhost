@@ -93,7 +93,7 @@ export default function Nav() {
         </ul>
 
         <a href="#contact" className="btn btn--primary site-nav__drawer-cta" onClick={() => setOpen(false)}>
-          Get in touch
+          Reserve your spot
         </a>
 
         <div className="site-nav__drawer-legal">

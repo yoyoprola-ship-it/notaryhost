@@ -1,7 +1,75 @@
+import { useState } from 'react'
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
+import { auth } from '../firebase'
 import Icon from '../components/Icon'
 import Reveal from '../components/Reveal'
 
+const SERVICES = [
+  { value: 'website', label: 'Website + dashboard' },
+  { value: 'booking', label: 'Booking system' },
+  { value: 'ivr', label: 'Phone robot (IVR)' },
+]
+
 export default function Cta() {
+  const [products, setProducts] = useState([])
+  const [phone, setPhone] = useState('')
+  const [code, setCode] = useState('')
+  const [step, setStep] = useState('form') // form | verify | done
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [confirmation, setConfirmation] = useState(null)
+
+  function toggleProduct(value) {
+    setProducts((p) => (p.includes(value) ? p.filter((x) => x !== value) : [...p, value]))
+  }
+
+  async function handleSendCode(e) {
+    e.preventDefault()
+    setError('')
+    if (products.length === 0) { setError('Pick at least one service.'); return }
+    const digits = phone.replace(/\D/g, '')
+    if (digits.length !== 10) { setError('Enter a valid 10-digit US phone number.'); return }
+
+    setLoading(true)
+    try {
+      if (window.ctaRecaptcha) {
+        try { window.ctaRecaptcha.clear() } catch { /* ignore */ }
+      }
+      window.ctaRecaptcha = new RecaptchaVerifier(auth, 'cta-recaptcha', { size: 'invisible' })
+      const result = await signInWithPhoneNumber(auth, `+1${digits}`, window.ctaRecaptcha)
+      setConfirmation(result)
+      setStep('verify')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send the code. Try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleConfirmCode(e) {
+    e.preventDefault()
+    setError('')
+    if (!/^\d{6}$/.test(code)) { setError('Enter the 6-digit code.'); return }
+
+    setLoading(true)
+    try {
+      const cred = await confirmation.confirm(code)
+      const idToken = await cred.user.getIdToken()
+      const res = await fetch('/api/queue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({ products }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'Could not join the queue.')
+      setStep('done')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Invalid code. Try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <section className="cta" id="contact">
       <div className="cta__glow" />
@@ -14,10 +82,72 @@ export default function Cta() {
           <h2 className="cta__title">
             Want your notary practice to run like this?
           </h2>
-          <p className="cta__subtitle">Let's talk.</p>
-          <a className="btn btn--primary" href="mailto:yoyoprola@gmail.com">
-            Get in touch
-          </a>
+          <p className="cta__subtitle">Reserve your spot in the build queue.</p>
+
+          <div className="cta__notice">
+            <Icon name="shield" size={16} />
+            <span>
+              You won&rsquo;t be charged a cent until your website, booking system, and phone
+              line are 100% live and working.
+            </span>
+          </div>
+
+          {step === 'form' && (
+            <form className="cta__form" onSubmit={handleSendCode}>
+              <div className="cta__services">
+                {SERVICES.map((s) => (
+                  <label key={s.value} className="cta__service">
+                    <input
+                      type="checkbox"
+                      checked={products.includes(s.value)}
+                      onChange={() => toggleProduct(s.value)}
+                    />
+                    {s.label}
+                  </label>
+                ))}
+              </div>
+              <div className="cta__phone-row">
+                <input
+                  type="tel"
+                  placeholder="(337) 555-0100"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  maxLength={14}
+                />
+                <button className="btn btn--primary" type="submit" disabled={loading}>
+                  {loading ? 'Sending…' : 'Send code'}
+                </button>
+              </div>
+              {error && <p className="cta__error">{error}</p>}
+              <div id="cta-recaptcha" />
+            </form>
+          )}
+
+          {step === 'verify' && (
+            <form className="cta__form" onSubmit={handleConfirmCode}>
+              <p className="cta__hint">Enter the 6-digit code we just texted you.</p>
+              <div className="cta__phone-row">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="123456"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  maxLength={6}
+                />
+                <button className="btn btn--primary" type="submit" disabled={loading}>
+                  {loading ? 'Confirming…' : 'Confirm'}
+                </button>
+              </div>
+              {error && <p className="cta__error">{error}</p>}
+            </form>
+          )}
+
+          {step === 'done' && (
+            <p className="cta__success">
+              You&rsquo;re in the queue! We&rsquo;ll text you to get started.
+            </p>
+          )}
         </Reveal>
       </div>
     </section>
