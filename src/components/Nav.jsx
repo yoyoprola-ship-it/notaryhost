@@ -14,9 +14,9 @@ const links = [
   { href: '#included', label: "What's included", icon: 'file' },
   { href: '#benefits', label: 'Benefits', icon: 'rocket' },
   { href: '#results', label: 'Results', icon: 'pulse' },
+  { href: '/notaries', label: 'Notary directory', icon: 'pin' },
   { href: '#pricing', label: 'Pricing', icon: 'dollar' },
   { href: '#comparison', label: 'Comparison', icon: 'transfer' },
-  { href: '/notaries', label: 'Notary directory', icon: 'pin' },
 ]
 
 export default function Nav() {
