@@ -28,6 +28,17 @@ const emptyForm = {
 
 const SLUG_PATTERN = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/
 
+// US-only service — every phone field is entered as bare 10 digits with a
+// fixed "+1" shown next to the input, then stored as E.164 (+1XXXXXXXXXX)
+// so it matches what Firebase Auth returns elsewhere (queue signups, SMS
+// verification). No one should have to remember to type +1 themselves.
+function phoneDigits(v) {
+  return (v || '').replace(/\D/g, '').slice(-10)
+}
+function toE164(digits) {
+  return digits.length === 10 ? `+1${digits}` : ''
+}
+
 const ERROR_MESSAGES = {
   slug_taken: 'That subdomain is already used by another notary.',
 }
@@ -155,10 +166,16 @@ export default function NotaryFormPage() {
           </label>
           <label>
             Owner phone
-            <input
-              value={form.ownerPhone}
-              onChange={(e) => setForm({ ...form, ownerPhone: e.target.value })}
-            />
+            <div className="admin-phone-input">
+              <span>+1</span>
+              <input
+                type="tel"
+                placeholder="3375551234"
+                value={phoneDigits(form.ownerPhone)}
+                onChange={(e) => setForm({ ...form, ownerPhone: toE164(phoneDigits(e.target.value)) })}
+                maxLength={10}
+              />
+            </div>
           </label>
         </div>
 
@@ -211,11 +228,16 @@ export default function NotaryFormPage() {
           </label>
           <label>
             Twilio phone number
-            <input
-              placeholder="+1XXXXXXXXXX — this notary's own IVR/SMS number"
-              value={form.twilioPhoneNumber}
-              onChange={(e) => setForm({ ...form, twilioPhoneNumber: e.target.value })}
-            />
+            <div className="admin-phone-input">
+              <span>+1</span>
+              <input
+                type="tel"
+                placeholder="3375551234 — this notary's own IVR/SMS number"
+                value={phoneDigits(form.twilioPhoneNumber)}
+                onChange={(e) => setForm({ ...form, twilioPhoneNumber: toE164(phoneDigits(e.target.value)) })}
+                maxLength={10}
+              />
+            </div>
           </label>
         </div>
 

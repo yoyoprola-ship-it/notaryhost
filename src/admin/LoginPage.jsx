@@ -14,11 +14,13 @@ const SERVER_ERROR_MESSAGES = {
 }
 
 const AUTH_ERROR_MESSAGES = {
-  'auth/invalid-phone-number': 'Enter a valid phone number, e.g. +13375551234.',
+  'auth/invalid-phone-number': 'Enter a valid 10-digit US phone number.',
   'auth/too-many-requests': 'Too many attempts. Try again later.',
   'auth/invalid-verification-code': 'Incorrect code.',
   'auth/code-expired': 'That code expired. Request a new one.',
 }
+
+// US-only — the input takes bare digits with a fixed "+1" shown next to it.
 
 async function postJson(path, body) {
   try {
@@ -48,7 +50,7 @@ export default function LoginPage() {
   const navigate = useNavigate()
 
   const [stage, setStage] = useState('phone')
-  const [phoneNumber, setPhoneNumber] = useState('')
+  const [phone, setPhone] = useState('')
   const [phoneCode, setPhoneCode] = useState('')
   const [emailCode, setEmailCode] = useState('')
   const [error, setError] = useState('')
@@ -95,13 +97,19 @@ export default function LoginPage() {
   async function handleSendPhoneCode(e) {
     e.preventDefault()
     setError('')
+    const digits = phone.replace(/\D/g, '')
+    if (digits.length !== 10) {
+      setError('Enter a valid 10-digit US phone number.')
+      return
+    }
     setSubmitting(true)
     try {
+      const e164 = `+1${digits}`
       // Check before Firebase ever sends a real SMS — a wrong/typo'd number
       // gets rejected immediately with no message sent.
-      await checkPhoneNumber(phoneNumber)
+      await checkPhoneNumber(e164)
       const verifier = getOrCreateVerifier()
-      confirmationRef.current = await signInWithPhoneNumber(auth, phoneNumber, verifier)
+      confirmationRef.current = await signInWithPhoneNumber(auth, e164, verifier)
       setStage('phone-code')
     } catch (err) {
       recaptchaRef.current?.clear()
@@ -146,7 +154,7 @@ export default function LoginPage() {
     requestedEmailCodeRef.current = false
     confirmationRef.current = null
     setStage('phone')
-    setPhoneNumber('')
+    setPhone('')
     setPhoneCode('')
     setEmailCode('')
     setError('')
@@ -162,14 +170,18 @@ export default function LoginPage() {
           <form onSubmit={handleSendPhoneCode}>
             <label>
               Phone number
-              <input
-                type="tel"
-                placeholder="+13375551234"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                required
-                autoFocus
-              />
+              <div className="admin-phone-input">
+                <span>+1</span>
+                <input
+                  type="tel"
+                  placeholder="3375551234"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  maxLength={10}
+                  required
+                  autoFocus
+                />
+              </div>
             </label>
             <button type="submit" disabled={submitting}>
               {submitting ? 'Sending…' : 'Send code'}

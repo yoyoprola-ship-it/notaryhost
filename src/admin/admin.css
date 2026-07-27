@@ -203,6 +203,22 @@
   background: var(--bg);
 }
 
+.admin-phone-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-phone-input span {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.admin-phone-input input {
+  flex: 1;
+  min-width: 0;
+}
+
 .admin-form__row {
   display: flex;
   gap: 16px;
