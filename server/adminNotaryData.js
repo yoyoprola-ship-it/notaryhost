@@ -41,12 +41,17 @@ async function getNotaryConfigOr404(notaryId, res) {
     res.status(404).json({ error: 'notary_not_found' })
     return null
   }
-  const { collectionPrefix, twilioPhoneNumber, products } = snap.data()
+  const { collectionPrefix, twilioPhoneNumber, products, firstPaymentDate } = snap.data()
   if (!collectionPrefix) {
     res.status(409).json({ error: 'not_configured' })
     return null
   }
-  return { prefix: collectionPrefix, twilioPhoneNumber: twilioPhoneNumber || '', products: products || [] }
+  return {
+    prefix: collectionPrefix,
+    twilioPhoneNumber: twilioPhoneNumber || '',
+    products: products || [],
+    firstPaymentDate: firstPaymentDate || null,
+  }
 }
 
 // ─── Pricing — must match the plan cards on notaryhost.com and Terms ────
@@ -101,7 +106,17 @@ function computeBill(products, bookings, minutes) {
 // /api/admin/stats, so bills keep getting generated even though nobody
 // visits a notary's own dashboard anymore) ──────────────────────────────
 
-function monthBounds(offset) {
+// Clamps to the last day of the target month so e.g. a billing day of 31
+// doesn't roll over into the following month when that month is shorter.
+function clampedMonthDate(year, monthIndex, day) {
+  const lastDay = new Date(year, monthIndex + 1, 0).getDate()
+  return new Date(year, monthIndex, Math.min(day, lastDay))
+}
+
+// billingDay = the day-of-month a notary's first payment was made — bills
+// recur due on that same day every month. Defaults to the 5th for notaries
+// who haven't made a first payment yet (nothing to anchor to).
+function monthBounds(offset, billingDay = 5) {
   const now = new Date()
   const y = now.getFullYear()
   const m = now.getMonth() + offset
@@ -111,9 +126,15 @@ function monthBounds(offset) {
   const period = `${y}-${String(m + 1).padStart(2, '0')}`
   const startStr = `${period}-01`
   const endStr = new Date(y, m + 1, 0).toISOString().slice(0, 10)
-  const dueD = new Date(y, m + 2, 5)
-  const dueDate = `${dueD.getFullYear()}-${String(dueD.getMonth() + 1).padStart(2, '0')}-05`
+  const dueD = clampedMonthDate(y, m + 2, billingDay)
+  const dueDate = `${dueD.getFullYear()}-${String(dueD.getMonth() + 1).padStart(2, '0')}-${String(dueD.getDate()).padStart(2, '0')}`
   return { start, end, label, period, startStr, endStr, dueDate }
+}
+
+function billingDayFor(firstPaymentDate) {
+  if (!firstPaymentDate) return 5
+  const d = new Date(`${firstPaymentDate}T00:00:00`)
+  return Number.isNaN(d.getTime()) ? 5 : d.getDate()
 }
 
 async function countBetween(col, start, end) {
@@ -216,12 +237,13 @@ router.post('/:notaryId/grant-admin-access', requireAdmin, async (req, res) => {
 router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
   const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
   if (!cfg) return
-  const { prefix, twilioPhoneNumber, products } = cfg
+  const { prefix, twilioPhoneNumber, products, firstPaymentDate } = cfg
 
   void grantAdminAccess(prefix).catch(() => {})
 
-  const cur = monthBounds(0)
-  const prev = monthBounds(-1)
+  const billingDay = billingDayFor(firstPaymentDate)
+  const cur = monthBounds(0, billingDay)
+  const prev = monthBounds(-1, billingDay)
 
   const [
     bookingsCur, bookingsPrev, consultsCur, consultsPrev, twilioCur, twilioPrev,
@@ -295,11 +317,17 @@ router.patch('/:notaryId/bookings/:bookingId/cancel', requireAdmin, async (req, 
 router.patch('/:notaryId/bills/:period/paid', requireAdmin, async (req, res) => {
   const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
   if (!cfg) return
-  const { prefix } = cfg
+  const { prefix, firstPaymentDate } = cfg
   await adminDb.doc(`${prefix}_bills/${req.params.period}`).update({
     status: 'paid',
     paidAt: FieldValue.serverTimestamp(),
   })
+  // First bill ever marked paid for this notary anchors their recurring
+  // due date — same day-of-month, every month, from here on.
+  if (!firstPaymentDate) {
+    const today = new Date().toISOString().slice(0, 10)
+    await adminDb.doc(`notaries/${req.params.notaryId}`).set({ firstPaymentDate: today }, { merge: true })
+  }
   res.json({ ok: true })
 })
 

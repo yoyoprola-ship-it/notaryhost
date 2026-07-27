@@ -2,6 +2,13 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { deleteNotary, getNotary } from './notariesApi'
 
+function dayOrdinalSuffix(day) {
+  if (day % 10 === 1 && day !== 11) return 'st'
+  if (day % 10 === 2 && day !== 12) return 'nd'
+  if (day % 10 === 3 && day !== 13) return 'rd'
+  return 'th'
+}
+
 export default function NotaryDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -71,6 +78,13 @@ export default function NotaryDetailPage() {
 
         <dt>Business address</dt>
         <dd>{notary.businessAddress || '—'}</dd>
+
+        <dt>First payment / billing day</dt>
+        <dd>
+          {notary.firstPaymentDate
+            ? `${notary.firstPaymentDate} — bills due the ${new Date(`${notary.firstPaymentDate}T00:00:00`).getDate()}${dayOrdinalSuffix(new Date(`${notary.firstPaymentDate}T00:00:00`).getDate())} of each month`
+            : 'Not paid yet — bills default to the 5th'}
+        </dd>
 
         <dt>Location</dt>
         <dd>{notary.location || '—'}</dd>

@@ -19,6 +19,7 @@ const emptyForm = {
   collectionPrefix: '',
   twilioPhoneNumber: '',
   businessAddress: '',
+  firstPaymentDate: '',
   location: '',
   photoUrl: '',
   photoCropX: 0.5,
@@ -248,6 +249,19 @@ export default function NotaryFormPage() {
             value={form.businessAddress}
             onChange={(e) => setForm({ ...form, businessAddress: e.target.value })}
           />
+        </label>
+
+        <label>
+          First payment date
+          <input
+            type="date"
+            value={form.firstPaymentDate}
+            onChange={(e) => setForm({ ...form, firstPaymentDate: e.target.value })}
+          />
+          <span className="admin-hint">
+            Bills recur due on this same day every month. Set automatically the first time a
+            bill is marked paid — only set this by hand to correct it.
+          </span>
         </label>
 
         <div className="admin-form__row">
