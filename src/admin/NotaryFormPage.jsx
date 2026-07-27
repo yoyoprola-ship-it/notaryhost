@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { PRODUCT_OPTIONS, STATUS_OPTIONS, createNotary, getNotary, updateNotary } from './notariesApi'
 import PhotoCropper from './PhotoCropper'
+
+const MAX_PHOTO_BYTES = 8 * 1024 * 1024
 
 const emptyForm = {
   businessName: '',
@@ -37,6 +40,37 @@ export default function NotaryFormPage() {
   const [loading, setLoading] = useState(isEdit)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+
+  async function handlePhotoFile(e) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setUploadError('')
+
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please choose an image file.')
+      return
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      setUploadError('Image is too large (max 8MB).')
+      return
+    }
+
+    setUploading(true)
+    try {
+      const path = `notaryPhotos/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
+      const storageRef = ref(getStorage(), path)
+      await uploadBytes(storageRef, file)
+      const url = await getDownloadURL(storageRef)
+      setForm((f) => ({ ...f, photoUrl: url, photoCropX: 0.5, photoCropY: 0.5, photoCropZoom: 1 }))
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload failed.')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   useEffect(() => {
     if (!isEdit) return
@@ -206,12 +240,19 @@ export default function NotaryFormPage() {
           <label>
             Photo URL
             <input
-              placeholder="Link to a photo of the notary, shown in the directory"
+              placeholder="Link to a photo, or upload one below"
               value={form.photoUrl}
               onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
             />
           </label>
         </div>
+
+        <label>
+          Or upload a photo
+          <input type="file" accept="image/*" onChange={handlePhotoFile} disabled={uploading} />
+        </label>
+        {uploading && <p className="admin-muted">Uploading…</p>}
+        {uploadError && <p className="admin-error">{uploadError}</p>}
 
         {form.photoUrl && (
           <PhotoCropper
