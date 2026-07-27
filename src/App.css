@@ -344,30 +344,107 @@
   border-radius: 2px;
 }
 
-.site-nav__mobile {
-  background: var(--navy-900);
-  border-bottom: 1px solid rgba(236, 206, 142, 0.14);
+.site-nav__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(6, 7, 20, 0.6);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
 }
 
-.site-nav__mobile ul {
+.site-nav__overlay--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.site-nav__drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  width: min(380px, 88vw);
   display: flex;
   flex-direction: column;
-  padding: 8px 32px 20px;
-  max-height: 75vh;
-  overflow-y: auto;
+  background: var(--navy-900);
+  border-left: 1px solid rgba(236, 206, 142, 0.16);
+  box-shadow: -30px 0 60px rgba(0, 0, 0, 0.4);
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.site-nav__mobile a {
-  display: block;
-  padding: 12px 0;
+.site-nav__drawer--open {
+  transform: translateX(0);
+}
+
+.site-nav__drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 22px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.site-nav__drawer-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.site-nav__drawer-close:hover {
+  border-color: var(--gold-light);
+  color: var(--gold-light);
+}
+
+.site-nav__drawer-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 14px;
+}
+
+.site-nav__drawer-list a {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 12px 12px;
+  border-radius: 10px;
   color: #e5e7f5;
   text-decoration: none;
-  font-size: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
-.site-nav__mobile a:hover {
+.site-nav__drawer-list a:hover {
+  background: rgba(236, 206, 142, 0.09);
   color: var(--gold-light);
+}
+
+.site-nav__drawer-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(236, 206, 142, 0.1);
+  color: var(--gold-light);
+  flex-shrink: 0;
+}
+
+.site-nav__drawer-cta {
+  margin: 12px 22px 22px;
+  text-align: center;
 }
 
 /* ---------- hero ---------- */

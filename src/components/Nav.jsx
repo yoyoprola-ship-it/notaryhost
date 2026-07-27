@@ -1,25 +1,29 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Icon from './Icon'
 
 const links = [
-  { href: '#top', label: 'Home' },
-  { href: '#services', label: 'Services' },
-  { href: '#website', label: 'Website' },
-  { href: '#confirmations', label: 'Confirmations' },
-  { href: '#how-it-works', label: 'Phone robot (IVR)' },
-  { href: '#dashboard', label: 'Dashboard' },
-  { href: '#tech', label: 'Technology' },
-  { href: '#who-for', label: "Who it's for" },
-  { href: '#included', label: "What's included" },
-  { href: '#benefits', label: 'Benefits' },
-  { href: '#results', label: 'Results' },
-  { href: '#pricing', label: 'Pricing' },
-  { href: '#comparison', label: 'Comparison' },
-  { href: '#contact', label: 'Get in touch' },
+  { href: '#top', label: 'Home', icon: 'seal' },
+  { href: '#services', label: 'Services', icon: 'check' },
+  { href: '#website', label: 'Website', icon: 'globe' },
+  { href: '#confirmations', label: 'Confirmations', icon: 'bell' },
+  { href: '#how-it-works', label: 'Phone robot (IVR)', icon: 'mic' },
+  { href: '#dashboard', label: 'Dashboard', icon: 'gauge' },
+  { href: '#tech', label: 'Technology', icon: 'cloud' },
+  { href: '#who-for', label: "Who it's for", icon: 'scale' },
+  { href: '#included', label: "What's included", icon: 'file' },
+  { href: '#benefits', label: 'Benefits', icon: 'rocket' },
+  { href: '#results', label: 'Results', icon: 'pulse' },
+  { href: '#pricing', label: 'Pricing', icon: 'dollar' },
+  { href: '#comparison', label: 'Comparison', icon: 'transfer' },
 ]
 
 export default function Nav() {
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [open])
 
   return (
     <header className="site-nav">
@@ -34,9 +38,9 @@ export default function Nav() {
         <button
           type="button"
           className="site-nav__toggle"
-          aria-label="Toggle menu"
+          aria-label="Open menu"
           aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
+          onClick={() => setOpen(true)}
         >
           <span />
           <span />
@@ -44,19 +48,43 @@ export default function Nav() {
         </button>
       </div>
 
-      {open && (
-        <div className="site-nav__mobile">
-          <ul>
-            {links.map((link) => (
-              <li key={link.href}>
-                <a href={link.href} onClick={() => setOpen(false)}>
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+      <div className={`site-nav__overlay ${open ? 'site-nav__overlay--open' : ''}`} onClick={() => setOpen(false)} />
+
+      <nav className={`site-nav__drawer ${open ? 'site-nav__drawer--open' : ''}`} aria-hidden={!open}>
+        <div className="site-nav__drawer-header">
+          <span className="brand">
+            <span className="brand__mark">
+              <Icon name="seal" size={18} />
+            </span>
+            <span>NotaryHost</span>
+          </span>
+          <button
+            type="button"
+            className="site-nav__drawer-close"
+            aria-label="Close menu"
+            onClick={() => setOpen(false)}
+          >
+            ✕
+          </button>
         </div>
-      )}
+
+        <ul className="site-nav__drawer-list">
+          {links.map((link) => (
+            <li key={link.href}>
+              <a href={link.href} onClick={() => setOpen(false)}>
+                <span className="site-nav__drawer-icon">
+                  <Icon name={link.icon} size={17} />
+                </span>
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <a href="#contact" className="btn btn--primary site-nav__drawer-cta" onClick={() => setOpen(false)}>
+          Get in touch
+        </a>
+      </nav>
     </header>
   )
 }
