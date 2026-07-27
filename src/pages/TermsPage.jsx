@@ -2,11 +2,11 @@ import LegalPage from './LegalPage'
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms & Conditions" updated="July 25, 2026">
+    <LegalPage title="Terms & Conditions" updated="July 27, 2026">
       <p className="legal__note">
         This is a general-purpose terms template drafted for NotaryHost's actual services and
-        pricing. It is not legal advice — have it reviewed by an attorney, and fill in your
-        governing-law jurisdiction, before treating it as final.
+        pricing. It is not legal advice — have it reviewed by an attorney before treating it as
+        final.
       </p>
 
       <>
@@ -108,7 +108,7 @@ export default function TermsPage() {
 
         <h2>11. Governing law</h2>
         <p>
-          These terms are governed by the laws of <em>[state/jurisdiction — to be filled in]</em>,
+          These terms are governed by the laws of the State of Louisiana,
           without regard to conflict-of-law rules.
         </p>
 
