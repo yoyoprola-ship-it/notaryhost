@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Icon from './Icon'
 
 const links = [
@@ -84,6 +85,11 @@ export default function Nav() {
         <a href="#contact" className="btn btn--primary site-nav__drawer-cta" onClick={() => setOpen(false)}>
           Get in touch
         </a>
+
+        <div className="site-nav__drawer-legal">
+          <Link to="/privacy" onClick={() => setOpen(false)}>Privacy Policy</Link>
+          <Link to="/terms" onClick={() => setOpen(false)}>Terms &amp; Conditions</Link>
+        </div>
       </nav>
     </header>
   )

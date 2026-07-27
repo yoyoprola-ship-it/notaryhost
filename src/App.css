@@ -447,6 +447,24 @@
   text-align: center;
 }
 
+.site-nav__drawer-legal {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  padding: 14px 22px 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.site-nav__drawer-legal a {
+  color: #8286a3;
+  text-decoration: none;
+  font-size: 0.8rem;
+}
+
+.site-nav__drawer-legal a:hover {
+  color: var(--gold-light);
+}
+
 /* ---------- hero ---------- */
 
 .hero {
