@@ -16,6 +16,7 @@ const links = [
   { href: '#results', label: 'Results', icon: 'pulse' },
   { href: '#pricing', label: 'Pricing', icon: 'dollar' },
   { href: '#comparison', label: 'Comparison', icon: 'transfer' },
+  { href: '/notaries', label: 'Notary directory', icon: 'pin' },
 ]
 
 export default function Nav() {
@@ -70,16 +71,25 @@ export default function Nav() {
         </div>
 
         <ul className="site-nav__drawer-list">
-          {links.map((link) => (
-            <li key={link.href}>
-              <a href={link.href} onClick={() => setOpen(false)}>
+          {links.map((link) => {
+            const content = (
+              <>
                 <span className="site-nav__drawer-icon">
                   <Icon name={link.icon} size={17} />
                 </span>
                 {link.label}
-              </a>
-            </li>
-          ))}
+              </>
+            )
+            return (
+              <li key={link.href}>
+                {link.href.startsWith('/') ? (
+                  <Link to={link.href} onClick={() => setOpen(false)}>{content}</Link>
+                ) : (
+                  <a href={link.href} onClick={() => setOpen(false)}>{content}</a>
+                )}
+              </li>
+            )
+          })}
         </ul>
 
         <a href="#contact" className="btn btn--primary site-nav__drawer-cta" onClick={() => setOpen(false)}>

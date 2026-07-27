@@ -8,6 +8,7 @@ import './App.css'
 
 const AdminApp = lazy(() => import('./admin/AdminApp'))
 const TenantMarketingPage = lazy(() => import('./pages/TenantMarketingPage'))
+const DirectoryPage = lazy(() => import('./pages/DirectoryPage'))
 
 export default function App() {
   const tenantSlug = getTenantSlug()
@@ -25,6 +26,14 @@ export default function App() {
         <Route path="/" element={<MarketingPage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsPage />} />
+        <Route
+          path="/notaries"
+          element={
+            <Suspense fallback={null}>
+              <DirectoryPage />
+            </Suspense>
+          }
+        />
         <Route
           path="/admin/*"
           element={

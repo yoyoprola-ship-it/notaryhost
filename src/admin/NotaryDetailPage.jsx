@@ -72,6 +72,12 @@ export default function NotaryDetailPage() {
         <dt>Business address</dt>
         <dd>{notary.businessAddress || '—'}</dd>
 
+        <dt>Location</dt>
+        <dd>{notary.location || '—'}</dd>
+
+        <dt>Photo URL</dt>
+        <dd>{notary.photoUrl || '—'}</dd>
+
         <dt>Stripe customer</dt>
         <dd>{notary.stripeCustomerId || 'Not connected yet'}</dd>
 

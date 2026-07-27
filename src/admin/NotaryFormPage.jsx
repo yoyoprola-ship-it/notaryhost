@@ -15,6 +15,8 @@ const emptyForm = {
   collectionPrefix: '',
   twilioPhoneNumber: '',
   businessAddress: '',
+  location: '',
+  photoUrl: '',
 }
 
 const SLUG_PATTERN = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/
@@ -188,11 +190,30 @@ export default function NotaryFormPage() {
           />
         </label>
 
+        <div className="admin-form__row">
+          <label>
+            Location (city, state)
+            <input
+              placeholder="e.g. Lafayette, LA — shown first in the notary directory"
+              value={form.location}
+              onChange={(e) => setForm({ ...form, location: e.target.value })}
+            />
+          </label>
+          <label>
+            Photo URL
+            <input
+              placeholder="Link to a photo of the notary, shown in the directory"
+              value={form.photoUrl}
+              onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
+            />
+          </label>
+        </div>
+
         <label>
           Public description
           <textarea
             rows={3}
-            placeholder="Shown on this notary's public subdomain page, if one is set."
+            placeholder="Shown on this notary's public subdomain page and in the directory, if a subdomain is set."
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
           />
