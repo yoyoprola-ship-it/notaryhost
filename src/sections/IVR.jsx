@@ -5,7 +5,7 @@ const steps = [
   {
     icon: 'check',
     title: 'Hears their appointment status',
-    text: 'If the caller already has a booking, the system checks their number and tells them the date and time immediately — before anything else.',
+    text: 'If the caller already has a booking, the system checks their number and reads back the date and time in both English and Spanish — before anything else.',
   },
   {
     icon: 'globe',
