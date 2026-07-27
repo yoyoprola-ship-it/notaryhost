@@ -1111,6 +1111,37 @@
   width: auto;
 }
 
+.cta__service-price {
+  color: #9a9ec6;
+  font-size: 0.82rem;
+}
+
+.cta__bill {
+  text-align: center;
+  color: #e5e7f5;
+  font-size: 0.96rem;
+  margin: 0 0 20px;
+}
+
+.cta__bill strong {
+  color: var(--gold-light);
+}
+
+.cta__name {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+
+.cta__name::placeholder {
+  color: #767aa0;
+}
+
 .cta__phone-row {
   display: flex;
   gap: 10px;

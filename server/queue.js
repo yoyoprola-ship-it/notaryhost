@@ -35,6 +35,8 @@ router.post('/', async (req, res) => {
     : []
   if (products.length === 0) return res.status(400).json({ error: 'no_products' })
 
+  const ownerName = typeof req.body?.name === 'string' ? req.body.name.trim().slice(0, 120) : ''
+
   // Don't create a second lead for the same phone number if they already
   // submitted the form.
   const existing = await adminDb.collection('notaries').where('ownerPhone', '==', phone).limit(1).get()
@@ -43,8 +45,8 @@ router.post('/', async (req, res) => {
   }
 
   await adminDb.collection('notaries').add({
-    businessName: `New lead — ${formatPhone(phone)}`,
-    ownerName: '',
+    businessName: ownerName ? `New lead — ${ownerName}` : `New lead — ${formatPhone(phone)}`,
+    ownerName,
     ownerEmail: '',
     ownerPhone: phone,
     products,

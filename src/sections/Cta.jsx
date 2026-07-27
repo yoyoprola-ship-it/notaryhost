@@ -5,13 +5,21 @@ import Icon from '../components/Icon'
 import Reveal from '../components/Reveal'
 
 const SERVICES = [
-  { value: 'website', label: 'Website + dashboard' },
-  { value: 'booking', label: 'Booking system' },
-  { value: 'ivr', label: 'Phone robot (IVR)' },
+  { value: 'website', label: 'Website + dashboard', price: 64 },
+  { value: 'booking', label: 'Booking system', price: 19 },
+  { value: 'ivr', label: 'Phone robot (IVR)', price: 25 },
 ]
+
+const BUNDLE_PRICE = 99
+
+function monthlyTotal(products) {
+  if (products.length === SERVICES.length) return BUNDLE_PRICE
+  return SERVICES.filter((s) => products.includes(s.value)).reduce((sum, s) => sum + s.price, 0)
+}
 
 export default function Cta() {
   const [products, setProducts] = useState([])
+  const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [code, setCode] = useState('')
   const [step, setStep] = useState('form') // form | verify | done
@@ -27,6 +35,7 @@ export default function Cta() {
     e.preventDefault()
     setError('')
     if (products.length === 0) { setError('Pick at least one service.'); return }
+    if (!name.trim()) { setError('Enter your name.'); return }
     const digits = phone.replace(/\D/g, '')
     if (digits.length !== 10) { setError('Enter a valid 10-digit US phone number.'); return }
 
@@ -58,7 +67,7 @@ export default function Cta() {
       const res = await fetch('/api/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
-        body: JSON.stringify({ products }),
+        body: JSON.stringify({ products, name: name.trim() }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || 'Could not join the queue.')
@@ -103,9 +112,24 @@ export default function Cta() {
                       onChange={() => toggleProduct(s.value)}
                     />
                     {s.label}
+                    <span className="cta__service-price">${s.price}/mo</span>
                   </label>
                 ))}
               </div>
+              {products.length > 0 && (
+                <p className="cta__bill">
+                  Estimated monthly bill: <strong>${monthlyTotal(products)}/mo</strong>
+                  {products.length === SERVICES.length && ' (bundle discount applied)'}
+                </p>
+              )}
+              <input
+                type="text"
+                className="cta__name"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={120}
+              />
               <div className="cta__phone-row">
                 <input
                   type="tel"
@@ -115,7 +139,7 @@ export default function Cta() {
                   maxLength={14}
                 />
                 <button className="btn btn--primary" type="submit" disabled={loading}>
-                  {loading ? 'Sending…' : 'Send code'}
+                  {loading ? 'Sending…' : 'Verify phone to schedule'}
                 </button>
               </div>
               {error && <p className="cta__error">{error}</p>}
