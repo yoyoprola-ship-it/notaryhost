@@ -6,6 +6,12 @@ const router = Router()
 
 const VALID_PRODUCTS = ['website', 'booking', 'ivr']
 
+// Must stay word-for-word identical to the copy in src/sections/Cta.jsx —
+// this is the canonical text recorded as consent evidence, not whatever
+// the client happens to send, so it can't be tampered with in the request.
+const SMS_CONSENT_TEXT =
+  'I agree to receive SMS text messages from NotaryHost about my account, appointments, and services. Message & data rates may apply. Reply STOP to opt out.'
+
 function formatPhone(e164) {
   const d = (e164 || '').replace(/\D/g, '').slice(-10)
   if (d.length !== 10) return e164
@@ -66,6 +72,10 @@ router.post('/', async (req, res) => {
 
   const ownerName = typeof req.body?.name === 'string' ? req.body.name.trim().slice(0, 120) : ''
 
+  if (req.body?.smsConsent !== true) {
+    return res.status(400).json({ error: 'sms_consent_required' })
+  }
+
   // Don't create a second lead for the same phone number if they already
   // submitted the form.
   const existing = await adminDb.collection('notaries').where('ownerPhone', '==', phone).limit(1).get()
@@ -73,6 +83,10 @@ router.post('/', async (req, res) => {
     return res.json({ ok: true, alreadyQueued: true })
   }
 
+  // Consent evidence for SMS marketing (TCPA) — phone comes from the
+  // Firebase-verified token and the timestamp from the server, so neither
+  // can be spoofed by the client. If this is ever disputed, this record is
+  // the entire defense: who consented, to what exact text, and when.
   await adminDb.collection('notaries').add({
     businessName: ownerName ? `New lead — ${ownerName}` : `New lead — ${formatPhone(phone)}`,
     ownerName,
@@ -83,6 +97,11 @@ router.post('/', async (req, res) => {
     description: '',
     status: 'lead',
     notes: 'Joined the build queue from the website — phone-verified, no other details yet.',
+    smsConsent: {
+      text: SMS_CONSENT_TEXT,
+      phone,
+      consentedAt: FieldValue.serverTimestamp(),
+    },
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   })

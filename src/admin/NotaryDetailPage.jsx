@@ -92,6 +92,13 @@ export default function NotaryDetailPage() {
         <dt>Photo URL</dt>
         <dd>{notary.photoUrl || '—'}</dd>
 
+        <dt>SMS consent evidence</dt>
+        <dd>
+          {notary.smsConsent
+            ? `Consented ${notary.smsConsent.consentedAt?.toDate?.().toLocaleString('en-US') ?? '—'} from ${notary.smsConsent.phone} — "${notary.smsConsent.text}"`
+            : 'None on file — added manually, not through the signup form'}
+        </dd>
+
         <dt>Stripe customer</dt>
         <dd>{notary.stripeCustomerId || 'Not connected yet'}</dd>
 

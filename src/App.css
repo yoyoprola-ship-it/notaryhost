@@ -1157,6 +1157,23 @@
   color: #767aa0;
 }
 
+.cta__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: #c3c6de;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.cta__consent input {
+  width: auto;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
 .cta__submit {
   display: block;
   width: 100%;

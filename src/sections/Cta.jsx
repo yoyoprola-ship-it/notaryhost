@@ -12,6 +12,12 @@ const SERVICES = [
 
 const BUNDLE_PRICE = 99
 
+// Must stay word-for-word identical to the copy in server/queue.js — the
+// server records this exact string as the consent evidence, so what's
+// stored has to match what the person actually saw and checked.
+const SMS_CONSENT_TEXT =
+  'I agree to receive SMS text messages from NotaryHost about my account, appointments, and services. Message & data rates may apply. Reply STOP to opt out.'
+
 function monthlyTotal(products) {
   if (products.length === SERVICES.length) return BUNDLE_PRICE
   return SERVICES.filter((s) => products.includes(s.value)).reduce((sum, s) => sum + s.price, 0)
@@ -21,6 +27,7 @@ export default function Cta() {
   const [products, setProducts] = useState([])
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const [smsConsent, setSmsConsent] = useState(false)
   const [code, setCode] = useState('')
   const [step, setStep] = useState('form') // form | verify | done
   const [loading, setLoading] = useState(false)
@@ -38,6 +45,7 @@ export default function Cta() {
     if (!name.trim()) { setError('Enter your name.'); return }
     const digits = phone.replace(/\D/g, '')
     if (digits.length !== 10) { setError('Enter a valid 10-digit US phone number.'); return }
+    if (!smsConsent) { setError('Please agree to receive SMS messages to continue.'); return }
 
     setLoading(true)
     try {
@@ -67,7 +75,7 @@ export default function Cta() {
       const res = await fetch('/api/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
-        body: JSON.stringify({ products, name: name.trim() }),
+        body: JSON.stringify({ products, name: name.trim(), smsConsent }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || 'Could not join the queue.')
@@ -138,6 +146,14 @@ export default function Cta() {
                 onChange={(e) => setPhone(e.target.value)}
                 maxLength={14}
               />
+              <label className="cta__consent">
+                <input
+                  type="checkbox"
+                  checked={smsConsent}
+                  onChange={(e) => setSmsConsent(e.target.checked)}
+                />
+                <span>{SMS_CONSENT_TEXT}</span>
+              </label>
               <button className="btn btn--primary cta__submit" type="submit" disabled={loading}>
                 {loading ? 'Sending…' : 'Verify phone to schedule'}
               </button>
