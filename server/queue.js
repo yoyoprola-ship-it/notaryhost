@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { Resend } from 'resend'
 import { FieldValue } from 'firebase-admin/firestore'
 import { adminAuth, adminDb } from './firebaseAdmin.js'
 
@@ -21,7 +22,7 @@ function formatPhone(e164) {
 const PRODUCT_LABELS = { website: 'website', booking: 'booking system', ivr: 'phone robot (IVR)' }
 
 // Best-effort — a notification failure should never block the signup itself.
-async function notifyAdmin(ownerName, phone, products) {
+async function notifyAdminSms(ownerName, phone, wants) {
   const accountSid = process.env.TWILIO_ACCOUNT_SID
   const authToken = process.env.TWILIO_AUTH_TOKEN
   const from = process.env.TWILIO_PHONE_NUMBER_HOST
@@ -29,7 +30,6 @@ async function notifyAdmin(ownerName, phone, products) {
   if (!accountSid || !authToken || !from || !to) return
 
   const who = ownerName ? `${ownerName} (${formatPhone(phone)})` : formatPhone(phone)
-  const wants = products.map((p) => PRODUCT_LABELS[p] || p).join(', ')
   const body = `New build-queue signup: ${who} — wants ${wants}.`
 
   try {
@@ -45,6 +45,34 @@ async function notifyAdmin(ownerName, phone, products) {
   } catch {
     // ignore — don't fail the signup over a notification hiccup
   }
+}
+
+async function notifyAdminEmail(ownerName, phone, wants) {
+  const apiKey = process.env.RESEND_API_KEY
+  const to = process.env.NEXT_PUBLIC_ADMIN_EMAIL
+  if (!apiKey || !to) return
+
+  const who = ownerName || 'Someone'
+  try {
+    const resend = new Resend(apiKey)
+    const { error } = await resend.emails.send({
+      from: 'queue@notaryhost.com',
+      to,
+      subject: `New build-queue signup: ${who}`,
+      text: `${who} (${formatPhone(phone)}) just joined the build queue.\n\nWants: ${wants}`,
+    })
+    if (error) console.error('[queue] admin email failed:', error)
+  } catch (err) {
+    console.error('[queue] admin email failed:', err)
+  }
+}
+
+async function notifyAdmin(ownerName, phone, products) {
+  const wants = products.map((p) => PRODUCT_LABELS[p] || p).join(', ')
+  await Promise.all([
+    notifyAdminSms(ownerName, phone, wants),
+    notifyAdminEmail(ownerName, phone, wants),
+  ])
 }
 
 // Public — anyone with a phone-verified Firebase ID token (from the
