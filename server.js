@@ -1,4 +1,5 @@
 import express from 'express'
+import compression from 'compression'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import twilio from 'twilio'
@@ -25,6 +26,10 @@ function twilioClient() {
 }
 
 const app = express()
+// Everything (API + the built SPA) is served through this one Express
+// process — there's no separate static CDN doing gzip for us, so without
+// this the ~270KB main JS bundle goes out uncompressed on every load.
+app.use(compression())
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
