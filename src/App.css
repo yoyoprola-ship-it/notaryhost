@@ -2,6 +2,20 @@
   overflow-x: hidden;
 }
 
+/* ---------- route-level Suspense fallback ---------- */
+/* Shown while a lazy-loaded route's JS chunk (and the Firebase SDK it
+   pulls in) downloads — without this, a slow connection sees a fully
+   blank page with no indication anything is happening. */
+.route-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+}
+
 /* ---------- tenant (per-notary) marketing page ---------- */
 
 .tenant-page {
