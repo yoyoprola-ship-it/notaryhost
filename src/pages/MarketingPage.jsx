@@ -19,7 +19,13 @@ import Footer from '../sections/Footer'
 
 export default function MarketingPage() {
   useEffect(() => {
-    fetch('/api/site-visits/track', { method: 'POST' }).catch(() => {})
+    // Empty-body POSTs get rejected upstream with 411 Length Required, so
+    // send a tiny real body to guarantee a Content-Length header goes out.
+    fetch('/api/site-visits/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+    }).catch(() => {})
   }, [])
 
   return (
