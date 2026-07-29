@@ -7,6 +7,7 @@ import adminLoginRouter from './server/adminLogin.js'
 import adminNotaryDataRouter from './server/adminNotaryData.js'
 import cronRemindersRouter from './server/cronReminders.js'
 import queueRouter from './server/queue.js'
+import siteVisitsRouter from './server/siteVisits.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const { VoiceResponse } = twilio.twiml
@@ -134,6 +135,7 @@ app.use('/api/admin-login', adminLoginRouter)
 app.use('/api/admin/notaries', adminNotaryDataRouter)
 app.use('/api/cron', cronRemindersRouter)
 app.use('/api/queue', queueRouter)
+app.use('/api/site-visits', siteVisitsRouter)
 
 // Hashed filenames change on every build, so they're safe to cache forever;
 // index.html/the SPA fallback must never be cached, or a browser/CDN can keep

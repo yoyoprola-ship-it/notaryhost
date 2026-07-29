@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import Nav from '../components/Nav'
 import Hero from '../sections/Hero'
 import WhatIBuild from '../sections/WhatIBuild'
@@ -17,6 +18,10 @@ import Cta from '../sections/Cta'
 import Footer from '../sections/Footer'
 
 export default function MarketingPage() {
+  useEffect(() => {
+    fetch('/api/site-visits/track', { method: 'POST' }).catch(() => {})
+  }, [])
+
   return (
     <div className="page">
       <Nav />

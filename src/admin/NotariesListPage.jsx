@@ -1,6 +1,29 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listNotaries } from './notariesApi'
+import { getSiteVisits } from './notaryDataApi'
+
+function SiteVisitsCard() {
+  const [visits, setVisits] = useState(null)
+
+  useEffect(() => {
+    getSiteVisits().then(setVisits).catch(() => {})
+  }, [])
+
+  if (!visits) return null
+
+  return (
+    <>
+      <h2 className="admin-section-title">notaryhost.com visits</h2>
+      <div className="admin-stats">
+        <div className="admin-stat-card"><p className="admin-stat-card__label">Today</p><p className="admin-stat-card__value">{visits.today}</p></div>
+        <div className="admin-stat-card admin-stat-card--accent"><p className="admin-stat-card__label">Last 7 days</p><p className="admin-stat-card__value">{visits.last7}</p></div>
+        <div className="admin-stat-card"><p className="admin-stat-card__label">Last 30 days</p><p className="admin-stat-card__value">{visits.last30}</p></div>
+        <div className="admin-stat-card"><p className="admin-stat-card__label">Last 90 days</p><p className="admin-stat-card__value">{visits.total}</p></div>
+      </div>
+    </>
+  )
+}
 
 export default function NotariesListPage() {
   const [notaries, setNotaries] = useState(null)
@@ -22,6 +45,8 @@ export default function NotariesListPage() {
           </Link>
         </div>
       </header>
+
+      <SiteVisitsCard />
 
       {error && <p className="admin-error">{error}</p>}
 
