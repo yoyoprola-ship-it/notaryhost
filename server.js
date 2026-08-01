@@ -146,6 +146,11 @@ app.use(
     setHeaders(res, filePath) {
       if (filePath.includes(`${path.sep}assets${path.sep}`)) {
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+      } else if (/\.(jpg|jpeg|png|svg|webp)$/i.test(filePath)) {
+        // Unhashed public/ images (banners, favicon) — cache for real
+        // repeat-visit savings, but revalidate daily instead of forever
+        // in case the file is ever swapped out for a new one.
+        res.setHeader('Cache-Control', 'public, max-age=86400, must-revalidate')
       } else {
         res.setHeader('Cache-Control', 'no-store')
       }

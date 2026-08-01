@@ -577,6 +577,27 @@
   }
 }
 
+/* ---------- hero banner image ---------- */
+
+.hero-banner {
+  background: var(--navy-900);
+  padding: 0 0 90px;
+}
+
+.hero-banner__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+  box-shadow: 0 30px 70px rgba(10, 12, 34, 0.45);
+}
+
+@media (max-width: 700px) {
+  .hero-banner {
+    padding-bottom: 60px;
+  }
+}
+
 /* ---------- cards ---------- */
 
 .card {

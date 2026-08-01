@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import Nav from '../components/Nav'
 import Hero from '../sections/Hero'
+import HeroBanner from '../sections/HeroBanner'
 import WhatIBuild from '../sections/WhatIBuild'
 import WebsiteFeature from '../sections/WebsiteFeature'
 import Confirmations from '../sections/Confirmations'
@@ -32,6 +33,7 @@ export default function MarketingPage() {
     <div className="page">
       <Nav />
       <Hero />
+      <HeroBanner />
       <WhatIBuild />
       <WebsiteFeature />
       <Confirmations />
