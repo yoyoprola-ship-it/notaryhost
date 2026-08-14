@@ -258,6 +258,14 @@ export default function EnvelopesPage() {
                     : <span className="admin-muted">—</span>}
                 </td>
                 <td style={{ display: 'flex', gap: 8 }}>
+                  <a
+                    className="admin-btn"
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.address)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Map
+                  </a>
                   <button
                     className="admin-btn"
                     onClick={() => handleGenerateOne(r)}
