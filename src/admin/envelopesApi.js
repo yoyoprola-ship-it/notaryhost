@@ -11,3 +11,15 @@ export async function addEnvelopeRecipient(name, address) {
 export async function deleteEnvelopeRecipient(id) {
   return adminFetch(`/api/admin/envelopes/${id}`, { method: 'DELETE' })
 }
+
+export async function getCurrentPromotion() {
+  return adminFetch('/api/admin/envelopes/settings', { method: 'GET' })
+}
+
+export async function startNextPromotion() {
+  return adminFetch('/api/admin/envelopes/settings/next-promotion', { method: 'POST' })
+}
+
+export async function markPromotionSent(ids) {
+  return adminFetch('/api/admin/envelopes/mark-sent', { method: 'POST', body: { ids } })
+}

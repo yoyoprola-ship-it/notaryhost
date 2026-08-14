@@ -16,7 +16,7 @@ export async function generateEnvelopePdf(recipients) {
 
   for (const { name, address } of recipients) {
     const page = pdf.addPage([ENVELOPE_WIDTH, ENVELOPE_HEIGHT])
-    const lines = [name, ...address.split('\n').map((l) => l.trim()).filter(Boolean)]
+    const lines = [name, address]
     const startX = ENVELOPE_WIDTH * 0.52
     const startY = ENVELOPE_HEIGHT * 0.58
 
