@@ -263,10 +263,15 @@ export default function EnvelopesPage() {
             {pageItems.map((r) => (
               <tr key={r.id}>
                 <td>{r.name}</td>
+                <td>{r.address}</td>
                 <td>
-                  {r.address}{' '}
+                  {r.promotionsSent && r.promotionsSent.length > 0
+                    ? r.promotionsSent.slice().sort((a, b) => a - b).join(', ')
+                    : <span className="admin-muted">—</span>}
+                </td>
+                <td style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   {r.verified ? (
-                    <span title="Verified" style={{ color: '#1e7a30' }}>✓</span>
+                    <span title="Verified" style={{ color: '#1e7a30', fontSize: '1.1rem' }}>✓</span>
                   ) : (
                     <button
                       className="admin-btn"
@@ -278,13 +283,6 @@ export default function EnvelopesPage() {
                       {verifyingId === r.id ? '…' : '✓'}
                     </button>
                   )}
-                </td>
-                <td>
-                  {r.promotionsSent && r.promotionsSent.length > 0
-                    ? r.promotionsSent.slice().sort((a, b) => a - b).join(', ')
-                    : <span className="admin-muted">—</span>}
-                </td>
-                <td style={{ display: 'flex', gap: 8 }}>
                   <a
                     className="admin-btn"
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.address)}`}
