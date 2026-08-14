@@ -5,6 +5,7 @@ import { auth } from '../firebase'
 import { useAuth } from './AuthContext'
 import { isAdminSession } from './session'
 import { adminFetch } from './apiClient'
+import Icon from '../components/Icon'
 
 const SERVER_ERROR_MESSAGES = {
   rate_limited: 'Too many attempts right now. Try again in a bit.',
@@ -163,6 +164,9 @@ export default function LoginPage() {
   return (
     <div className="admin-auth">
       <div className="admin-auth__card">
+        <span className="admin-auth__mark">
+          <Icon name="seal" size={20} />
+        </span>
         <h1>NotaryHost Admin</h1>
         <div id="recaptcha-container" />
 
