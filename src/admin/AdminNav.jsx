@@ -13,6 +13,9 @@ export default function AdminNav() {
         <NavLink to="/admin" end className={linkClass}>
           Notaries
         </NavLink>
+        <NavLink to="/admin/envelopes" className={linkClass}>
+          Envelopes
+        </NavLink>
       </div>
       <button className="admin-btn" onClick={() => signOut(auth)}>
         Sign out
