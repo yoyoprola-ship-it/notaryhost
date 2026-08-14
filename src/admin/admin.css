@@ -1,3 +1,18 @@
+/* ---------- vivid admin-only accent tokens ----------
+   New names, not overriding --gold/--navy-900 (those are shared with
+   the public marketing site) — these are saturated, high-contrast
+   versions used for status/energy, applied as solid fills rather
+   than soft tints. */
+:root {
+  --admin-gold: #e0a51c;
+  --admin-gold-deep: #b5790a;
+  --admin-violet: #6d28d9;
+  --admin-blue: #2563eb;
+  --admin-green: #16a34a;
+  --admin-amber: #d97706;
+  --admin-red: #dc2626;
+}
+
 /* ---------- app shell ---------- */
 
 .admin-app {
@@ -84,8 +99,9 @@
 }
 
 .admin-nav__link--active {
-  color: var(--navy-900);
-  background: var(--gold-soft);
+  color: #fff;
+  background: linear-gradient(135deg, var(--admin-gold), var(--admin-gold-deep));
+  box-shadow: 0 2px 8px rgba(224, 165, 28, 0.4);
 }
 
 @media (max-width: 640px) {
@@ -162,14 +178,16 @@
 }
 
 .admin-btn--primary {
-  background: var(--navy-900);
-  border-color: var(--navy-900);
+  background: linear-gradient(135deg, var(--admin-violet), var(--navy-900));
+  border-color: transparent;
   color: #fff;
+  box-shadow: 0 4px 14px rgba(109, 40, 217, 0.35);
 }
 
 .admin-btn--primary:hover {
-  background: var(--navy-800);
-  border-color: var(--navy-800);
+  background: linear-gradient(135deg, #7c3aed, var(--navy-800));
+  border-color: transparent;
+  box-shadow: 0 6px 20px rgba(109, 40, 217, 0.45);
 }
 
 .admin-btn--ghost {
@@ -278,30 +296,30 @@
 }
 
 .admin-status--active {
-  background: rgba(46, 160, 67, 0.14);
-  color: #1e7a30;
+  background: var(--admin-green);
+  color: #fff;
 }
 
 .admin-status--onboarding,
 .admin-status--contacted {
-  background: var(--gold-soft);
-  color: #8a6a1f;
+  background: var(--admin-amber);
+  color: #fff;
 }
 
 .admin-status--paused,
 .admin-status--cancelled {
-  background: rgba(192, 57, 43, 0.12);
-  color: #c0392b;
+  background: var(--admin-red);
+  color: #fff;
 }
 
 .admin-status--admin {
-  background: var(--navy-900);
+  background: var(--admin-violet);
   color: #fff;
 }
 
 .admin-status--notary_owner {
-  background: var(--gold-soft);
-  color: #8a6a1f;
+  background: var(--admin-blue);
+  color: #fff;
 }
 
 /* ---------- form ---------- */
@@ -347,7 +365,7 @@
   outline: none;
   border-color: var(--gold);
   background: #fff;
-  box-shadow: 0 0 0 3px var(--gold-soft);
+  box-shadow: 0 0 0 3px rgba(224, 165, 28, 0.3);
 }
 
 /* the Envelopes search box lives outside .admin-form — same look */
@@ -364,7 +382,7 @@ input[type='search'] {
 input[type='search']:focus {
   outline: none;
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px var(--gold-soft);
+  box-shadow: 0 0 0 3px rgba(224, 165, 28, 0.3);
 }
 
 .admin-phone-input {
@@ -483,9 +501,9 @@ input[type='search']:focus {
 }
 
 .admin-tabs__link--active {
-  color: var(--navy-900);
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(23, 23, 53, 0.12);
+  color: #fff;
+  background: linear-gradient(135deg, var(--admin-violet), var(--navy-900));
+  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.35);
 }
 
 .admin-section-title {
@@ -506,6 +524,7 @@ input[type='search']:focus {
   background: #fff;
   border-radius: 14px;
   border: 1px solid var(--border);
+  border-top: 3px solid var(--admin-blue);
   padding: 20px 22px;
   box-shadow: 0 1px 3px rgba(23, 23, 53, 0.05);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -516,9 +535,17 @@ input[type='search']:focus {
   box-shadow: 0 12px 26px rgba(23, 23, 53, 0.08);
 }
 
+/* cycle a vivid top accent per card so a stats row reads as one system,
+   not four identical white boxes */
+.admin-stats .admin-stat-card:nth-of-type(4n + 1) { border-top-color: var(--admin-blue); }
+.admin-stats .admin-stat-card:nth-of-type(4n + 2) { border-top-color: var(--admin-violet); }
+.admin-stats .admin-stat-card:nth-of-type(4n + 3) { border-top-color: var(--admin-green); }
+.admin-stats .admin-stat-card:nth-of-type(4n + 4) { border-top-color: var(--admin-gold); }
+
 .admin-stat-card--accent {
-  background: linear-gradient(155deg, var(--gold-soft), #fff 65%);
-  border-color: rgba(201, 162, 77, 0.35);
+  background: linear-gradient(155deg, rgba(224, 165, 28, 0.14), #fff 65%);
+  border-color: rgba(224, 165, 28, 0.35);
+  border-top-color: var(--admin-gold-deep);
 }
 
 .admin-stat-card__grid {
@@ -670,7 +697,7 @@ input[type='search']:focus {
   outline: none;
   border-color: var(--gold);
   background: #fff;
-  box-shadow: 0 0 0 3px var(--gold-soft);
+  box-shadow: 0 0 0 3px rgba(224, 165, 28, 0.3);
 }
 
 .admin-auth__card button {
@@ -678,15 +705,16 @@ input[type='search']:focus {
   padding: 12px;
   border-radius: 10px;
   border: none;
-  background: var(--navy-900);
+  background: linear-gradient(135deg, var(--admin-violet), var(--navy-900));
   color: #fff;
   font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 4px 14px rgba(109, 40, 217, 0.35);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .admin-auth__card button:hover {
-  background: var(--navy-800);
+  box-shadow: 0 6px 20px rgba(109, 40, 217, 0.45);
   transform: translateY(-1px);
 }
 
