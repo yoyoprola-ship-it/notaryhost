@@ -6,6 +6,7 @@ import {
   listEnvelopeRecipients,
   markPromotionSent,
   startNextPromotion,
+  verifyEnvelopeRecipient,
 } from './envelopesApi'
 import { downloadBlob, generateEnvelopePdf } from './generateEnvelopePdf'
 
@@ -26,6 +27,7 @@ export default function EnvelopesPage() {
   const [saving, setSaving] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [generatingId, setGeneratingId] = useState(null)
+  const [verifyingId, setVerifyingId] = useState(null)
   const [confirming, setConfirming] = useState(false)
   const [advancing, setAdvancing] = useState(false)
   // ids included in a generated PDF (bulk or single), awaiting "confirm sent"
@@ -116,6 +118,16 @@ export default function EnvelopesPage() {
       mergePending([r.id])
     } finally {
       setGeneratingId(null)
+    }
+  }
+
+  async function handleVerify(id) {
+    setVerifyingId(id)
+    try {
+      await verifyEnvelopeRecipient(id)
+      setRecipients((prev) => prev.map((r) => (r.id === id ? { ...r, verified: true } : r)))
+    } finally {
+      setVerifyingId(null)
     }
   }
 
@@ -251,7 +263,22 @@ export default function EnvelopesPage() {
             {pageItems.map((r) => (
               <tr key={r.id}>
                 <td>{r.name}</td>
-                <td>{r.address}</td>
+                <td>
+                  {r.address}{' '}
+                  {r.verified ? (
+                    <span title="Verified" style={{ color: '#1e7a30' }}>✓</span>
+                  ) : (
+                    <button
+                      className="admin-btn"
+                      title="Mark address as verified"
+                      onClick={() => handleVerify(r.id)}
+                      disabled={verifyingId === r.id}
+                      style={{ padding: '2px 8px', fontSize: '0.8rem' }}
+                    >
+                      {verifyingId === r.id ? '…' : '✓'}
+                    </button>
+                  )}
+                </td>
                 <td>
                   {r.promotionsSent && r.promotionsSent.length > 0
                     ? r.promotionsSent.slice().sort((a, b) => a - b).join(', ')

@@ -12,6 +12,10 @@ export async function deleteEnvelopeRecipient(id) {
   return adminFetch(`/api/admin/envelopes/${id}`, { method: 'DELETE' })
 }
 
+export async function verifyEnvelopeRecipient(id) {
+  return adminFetch(`/api/admin/envelopes/${id}/verify`, { method: 'POST' })
+}
+
 export async function getCurrentPromotion() {
   return adminFetch('/api/admin/envelopes/settings', { method: 'GET' })
 }
