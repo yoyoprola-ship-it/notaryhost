@@ -4,8 +4,8 @@ export async function listEnvelopeRecipients() {
   return adminFetch('/api/admin/envelopes', { method: 'GET' })
 }
 
-export async function addEnvelopeRecipient(name, address) {
-  return adminFetch('/api/admin/envelopes', { method: 'POST', body: { name, address } })
+export async function addEnvelopeRecipient(name, address, language) {
+  return adminFetch('/api/admin/envelopes', { method: 'POST', body: { name, address, language } })
 }
 
 export async function deleteEnvelopeRecipient(id) {

@@ -23,6 +23,7 @@ export default function EnvelopesPage() {
   const [promotion, setPromotion] = useState(null)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
+  const [language, setLanguage] = useState('en')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [generating, setGenerating] = useState(false)
@@ -80,9 +81,10 @@ export default function EnvelopesPage() {
     setError('')
     setSaving(true)
     try {
-      await addEnvelopeRecipient(name, address)
+      await addEnvelopeRecipient(name, address, language)
       setName('')
       setAddress('')
+      setLanguage('en')
       await load()
     } catch (err) {
       setError(ERROR_MESSAGES[err.code] || 'Could not add this recipient.')
@@ -190,6 +192,13 @@ export default function EnvelopesPage() {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />
+          </label>
+          <label>
+            Language
+            <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
           </label>
         </div>
         {error && <p className="admin-error">{error}</p>}

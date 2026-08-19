@@ -56,6 +56,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   const name = typeof req.body?.name === 'string' ? req.body.name.trim().slice(0, 200) : ''
   const address = typeof req.body?.address === 'string' ? req.body.address.trim().slice(0, 400) : ''
+  const language = req.body?.language === 'es' ? 'es' : 'en'
   if (!name) return res.status(400).json({ error: 'name_required' })
   if (!address) return res.status(400).json({ error: 'address_required' })
 
@@ -74,10 +75,10 @@ router.post('/', async (req, res) => {
     address,
     addressNormalized,
     promotionsSent: [],
-    language: 'en',
+    language,
     createdAt: FieldValue.serverTimestamp(),
   })
-  res.json({ id: ref.id, name, address, promotionsSent: [], language: 'en' })
+  res.json({ id: ref.id, name, address, promotionsSent: [], language })
 })
 
 router.delete('/:id', async (req, res) => {
