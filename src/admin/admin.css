@@ -506,6 +506,21 @@ input[type='search']:focus {
   box-shadow: 0 2px 8px rgba(109, 40, 217, 0.35);
 }
 
+.admin-pager {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.admin-pager__range {
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 .admin-section-title {
   font-size: 1.15rem;
   margin: 36px 0 14px;

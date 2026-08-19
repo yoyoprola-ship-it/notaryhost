@@ -245,20 +245,26 @@ export default function EnvelopesPage() {
       )}
 
       {totalPages > 1 && (
-        <nav className="admin-tabs">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
-            const start = (p - 1) * PAGE_SIZE + 1
-            const end = Math.min(p * PAGE_SIZE, filtered.length)
-            return (
-              <button
-                key={p}
-                className={`admin-tabs__link${p === page ? ' admin-tabs__link--active' : ''}`}
-                onClick={() => setPage(p)}
-              >
-                {start}–{end}
-              </button>
-            )
-          })}
+        <nav className="admin-pager">
+          <button
+            className="admin-btn"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            aria-label="Previous page"
+          >
+            ←
+          </button>
+          <span className="admin-pager__range">
+            {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+          </span>
+          <button
+            className="admin-btn"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            aria-label="Next page"
+          >
+            →
+          </button>
         </nav>
       )}
 
