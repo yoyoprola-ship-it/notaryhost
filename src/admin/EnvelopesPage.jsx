@@ -193,7 +193,6 @@ export default function EnvelopesPage() {
             Address
             <input
               required
-              placeholder="123 Main St, Lafayette, LA 70508"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />
