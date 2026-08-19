@@ -88,6 +88,11 @@ export default function EnvelopesPage() {
       await load()
     } catch (err) {
       setError(ERROR_MESSAGES[err.code] || 'Could not add this recipient.')
+      if (err.code === 'duplicate_address') {
+        setName('')
+        setAddress('')
+        setLanguage('en')
+      }
     } finally {
       setSaving(false)
     }
