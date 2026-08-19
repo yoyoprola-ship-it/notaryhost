@@ -5,8 +5,8 @@ import {
   getCurrentPromotion,
   listEnvelopeRecipients,
   markPromotionSent,
+  setEnvelopeRecipientLanguage,
   startNextPromotion,
-  verifyEnvelopeRecipient,
 } from './envelopesApi'
 import { downloadBlob, generateEnvelopePdf } from './generateEnvelopePdf'
 
@@ -27,7 +27,7 @@ export default function EnvelopesPage() {
   const [saving, setSaving] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [generatingId, setGeneratingId] = useState(null)
-  const [verifyingId, setVerifyingId] = useState(null)
+  const [settingLanguageId, setSettingLanguageId] = useState(null)
   const [confirming, setConfirming] = useState(false)
   const [advancing, setAdvancing] = useState(false)
   // ids included in a generated PDF (bulk or single), awaiting "confirm sent"
@@ -121,13 +121,13 @@ export default function EnvelopesPage() {
     }
   }
 
-  async function handleVerify(id) {
-    setVerifyingId(id)
+  async function handleSetLanguage(id, language) {
+    setSettingLanguageId(id)
     try {
-      await verifyEnvelopeRecipient(id)
-      setRecipients((prev) => prev.map((r) => (r.id === id ? { ...r, verified: true } : r)))
+      await setEnvelopeRecipientLanguage(id, language)
+      setRecipients((prev) => prev.map((r) => (r.id === id ? { ...r, language } : r)))
     } finally {
-      setVerifyingId(null)
+      setSettingLanguageId(null)
     }
   }
 
@@ -270,19 +270,16 @@ export default function EnvelopesPage() {
                     : <span className="admin-muted">—</span>}
                 </td>
                 <td style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  {r.verified ? (
-                    <span title="Verified" style={{ color: '#1e7a30', fontSize: '1.1rem' }}>✓</span>
-                  ) : (
-                    <button
-                      className="admin-btn"
-                      title="Mark address as verified"
-                      onClick={() => handleVerify(r.id)}
-                      disabled={verifyingId === r.id}
-                      style={{ padding: '2px 8px', fontSize: '0.8rem' }}
-                    >
-                      {verifyingId === r.id ? '…' : '✓'}
-                    </button>
-                  )}
+                  <select
+                    value={r.language || 'en'}
+                    onChange={(e) => handleSetLanguage(r.id, e.target.value)}
+                    disabled={settingLanguageId === r.id}
+                    title="Language"
+                    style={{ padding: '2px 6px', fontSize: '0.8rem' }}
+                  >
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                  </select>
                   <a
                     className="admin-btn"
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.address)}`}

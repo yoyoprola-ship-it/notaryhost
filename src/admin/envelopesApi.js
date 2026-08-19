@@ -12,8 +12,8 @@ export async function deleteEnvelopeRecipient(id) {
   return adminFetch(`/api/admin/envelopes/${id}`, { method: 'DELETE' })
 }
 
-export async function verifyEnvelopeRecipient(id) {
-  return adminFetch(`/api/admin/envelopes/${id}/verify`, { method: 'POST' })
+export async function setEnvelopeRecipientLanguage(id, language) {
+  return adminFetch(`/api/admin/envelopes/${id}/language`, { method: 'POST', body: { language } })
 }
 
 export async function getCurrentPromotion() {

@@ -74,10 +74,10 @@ router.post('/', async (req, res) => {
     address,
     addressNormalized,
     promotionsSent: [],
-    verified: false,
+    language: 'en',
     createdAt: FieldValue.serverTimestamp(),
   })
-  res.json({ id: ref.id, name, address, promotionsSent: [], verified: false })
+  res.json({ id: ref.id, name, address, promotionsSent: [], language: 'en' })
 })
 
 router.delete('/:id', async (req, res) => {
@@ -85,11 +85,10 @@ router.delete('/:id', async (req, res) => {
   res.json({ ok: true })
 })
 
-// Manual confirmation that the address was checked (e.g. against Google
-// Maps) and looks right — one-way for now, there's no need to "unverify".
-router.post('/:id/verify', async (req, res) => {
-  await adminDb.collection('envelopeRecipients').doc(req.params.id).update({ verified: true })
-  res.json({ ok: true })
+router.post('/:id/language', async (req, res) => {
+  const language = req.body?.language === 'es' ? 'es' : 'en'
+  await adminDb.collection('envelopeRecipients').doc(req.params.id).update({ language })
+  res.json({ ok: true, language })
 })
 
 // Bulk-confirms that the current promotion's mailing actually went out for
