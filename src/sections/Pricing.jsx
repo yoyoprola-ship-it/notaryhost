@@ -6,7 +6,7 @@ const plans = [
     icon: 'globe',
     title: 'Website + dashboard',
     price: '$64',
-    text: 'We design and build your custom website for you — no separate build fee. Includes subdomain, hosting, and admin dashboard.',
+    text: 'We design and build your custom website for you — no separate build fee, and no fixed template — includes an urgent-service request button, subdomain, hosting, and admin dashboard.',
     note: 'Unlimited visits.',
   },
   {
@@ -20,7 +20,7 @@ const plans = [
     icon: 'phone',
     title: 'Phone robot (IVR)',
     price: '$25',
-    text: 'Includes up to 50 minutes per month.',
+    text: 'Includes up to 50 minutes per month. Menu and voice prompts are written to your request, not a fixed script.',
     note: 'Additional: $0.59 per minute.',
   },
 ]

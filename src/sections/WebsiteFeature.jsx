@@ -5,7 +5,7 @@ const bullets = [
   'Notarization types & services offered',
   'Service area with an interactive map',
   'Availability and typical response time',
-  'Direct contact for urgent signings',
+  'Urgent-service button — texts you instantly, confirms in under a minute',
 ]
 
 export default function WebsiteFeature() {
@@ -23,6 +23,7 @@ export default function WebsiteFeature() {
           </h3>
           <p className="split__text">
             English and Spanish, clean design, fast and mobile-friendly.
+            The look isn't a fixed template — it's adjusted to your request.
           </p>
         </Reveal>
       </div>

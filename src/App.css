@@ -172,6 +172,18 @@
   color: #9296b8;
 }
 
+.section__note {
+  max-width: 640px;
+  margin-top: 28px;
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.section--dark .section__note {
+  color: #9296b8;
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 2.5px;
@@ -798,7 +810,7 @@
 
 .steps {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 

@@ -13,6 +13,11 @@ const steps = [
     text: 'If the caller already has a booking, the system checks their number and reads back the date and time — right in the language they just chose.',
   },
   {
+    icon: 'bolt',
+    title: 'Requests urgent service',
+    text: "Texts you the caller's number right away. If you reply YES, they get a text back with your confirmation and address — no call needed on your end.",
+  },
+  {
     icon: 'calendar',
     title: 'Books a signing',
     text: 'Hears the booking web address and gets a text with the direct link.',
@@ -56,7 +61,7 @@ export default function IVR() {
                 </span>
                 <h3 className="step__title">{step.title}</h3>
                 <p className="step__text">{step.text}</p>
-                {i < steps.length - 1 && (
+                {i < steps.length - 1 && (i + 1) % 3 !== 0 && (
                   <span className="step__arrow">
                     <Icon name="arrow" size={18} />
                   </span>
@@ -65,6 +70,13 @@ export default function IVR() {
             </Reveal>
           ))}
         </div>
+        <Reveal delay={steps.length * 100}>
+          <p className="section__note">
+            This is the flow most notaries start with — the menu, voice
+            prompts, and options are written and adjusted to your request,
+            not a fixed script.
+          </p>
+        </Reveal>
       </div>
     </section>
   )

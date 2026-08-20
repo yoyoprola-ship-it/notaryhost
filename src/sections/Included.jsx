@@ -4,6 +4,7 @@ import Reveal from '../components/Reveal'
 const left = [
   'Professional website',
   '24/7 signing bookings',
+  'Urgent-service request button',
   'Automatic reminders',
   'Admin dashboard',
   'Cloud infrastructure',
