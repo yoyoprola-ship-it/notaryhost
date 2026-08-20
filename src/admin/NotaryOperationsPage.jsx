@@ -408,27 +408,52 @@ function PhoneSection({ notaryId }) {
 
   return (
     <>
-      <h2 className="admin-section-title">Phone</h2>
-      <p className="admin-muted" style={{ marginBottom: 20 }}>
-        {data?.phoneNumber ? `${data.phoneNumber} — c` : 'C'}alls and messages from the last 6 months,
-        grouped by who they were with.
-      </p>
+      <div className="admin-phone-header">
+        <h2 className="admin-section-title" style={{ margin: 0 }}>Phone</h2>
+        {data?.phoneNumber && <span className="admin-muted">{data.phoneNumber} · last 6 months</span>}
+      </div>
 
       {error && <p className="admin-error">{error}</p>}
       {!data && !error && <p className="admin-muted">Loading…</p>}
 
-      {data && data.threads.length === 0 && (
-        <p className="admin-muted">No calls or messages yet.</p>
-      )}
+      {data && (
+        <>
+          <h3 className="admin-phone-subtitle">Messages</h3>
+          {data.messageThreads.length === 0 ? (
+            <p className="admin-muted">No messages yet.</p>
+          ) : (
+            <div className="phone-log">
+              {data.messageThreads.map((t) => (
+                <PhoneThreadRow key={t.phone} t={t} notaryId={notaryId} kind="message" />
+              ))}
+            </div>
+          )}
 
-      {data && data.threads.map((t) => (
-        <PhoneThreadCard key={t.phone} t={t} notaryId={notaryId} />
-      ))}
+          <h3 className="admin-phone-subtitle">Calls</h3>
+          {data.callThreads.length === 0 ? (
+            <p className="admin-muted">No calls yet.</p>
+          ) : (
+            <div className="phone-log">
+              {data.callThreads.map((t) => (
+                <PhoneThreadRow key={t.phone} t={t} notaryId={notaryId} kind="call" />
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </>
   )
 }
 
-function PhoneThreadCard({ t, notaryId }) {
+function previewFor(item, kind) {
+  if (kind === 'call') {
+    const dir = item.direction === 'inbound' ? 'Inbound' : 'Outbound'
+    return `${dir} · ${item.status} · ${formatDuration(item.duration)}`
+  }
+  return item.body || ''
+}
+
+function PhoneThreadRow({ t, notaryId, kind }) {
   const [expanded, setExpanded] = useState(false)
   const [replyText, setReplyText] = useState('')
   const [replying, setReplying] = useState(false)
@@ -450,67 +475,64 @@ function PhoneThreadCard({ t, notaryId }) {
     }
   }
 
-  const visibleItems = expanded ? t.items : t.items.slice(0, 3)
-  const calls = t.items.filter((i) => i.type === 'call').length
-  const messages = t.items.filter((i) => i.type === 'message').length
+  const last = t.items[0]
 
   return (
-    <div className="admin-raw">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 14 }}>
-        <div>
-          <p style={{ fontWeight: 700, fontSize: '1.05rem' }}>{formatPhone(t.phone)}</p>
-          <p className="admin-muted">
-            {fmtDate(t.lastAt)} · {calls} call{calls === 1 ? '' : 's'} · {messages} message{messages === 1 ? '' : 's'}
-          </p>
-        </div>
-        <a className="admin-btn" href={`tel:${t.phone}`}>Call</a>
-      </div>
+    <div className={`phone-log__row${expanded ? ' phone-log__row--open' : ''}`}>
+      <button className="phone-log__summary" onClick={() => setExpanded((v) => !v)}>
+        <span className="phone-log__main">
+          <span className="phone-log__line1">
+            <span className="phone-log__phone">{formatPhone(t.phone)}</span>
+            <span className="admin-muted"> · {t.items.length} {kind === 'call' ? 'call' : 'message'}{t.items.length === 1 ? '' : 's'}</span>
+          </span>
+          <span className="phone-log__preview">{previewFor(last, kind)}</span>
+        </span>
+        <span className="phone-log__meta">
+          <span className="admin-muted">{fmtDate(t.lastAt)}</span>
+          <span className="phone-log__chevron">{expanded ? '▲' : '▼'}</span>
+        </span>
+      </button>
 
-      <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {visibleItems.map((item) => (
-          <li key={item.sid} style={{ fontSize: '0.86rem', display: 'flex', gap: 8, alignItems: 'baseline' }}>
-            <span style={{ fontWeight: 700, color: item.direction === 'inbound' ? 'var(--admin-blue)' : 'var(--muted)' }}>
-              {item.direction === 'inbound' ? '←' : '→'}
-            </span>
-            <span className="admin-muted" style={{ whiteSpace: 'nowrap' }}>{fmtDate(item.at)}</span>
-            {item.type === 'call' ? (
-              <span>Call · {item.status} · {formatDuration(item.duration)}</span>
-            ) : (
-              <span>{item.body}</span>
+      {expanded && (
+        <div className="phone-log__detail">
+          <ul className="phone-log__items">
+            {t.items.map((item) => (
+              <li key={item.sid}>
+                <span className={`phone-log__dir${item.direction === 'inbound' ? ' phone-log__dir--in' : ''}`}>
+                  {item.direction === 'inbound' ? '←' : '→'}
+                </span>
+                <span className="admin-muted">{fmtDate(item.at)}</span>
+                <span>{previewFor(item, kind)}</span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="phone-log__actions">
+            <a className="admin-btn" href={`tel:${t.phone}`}>Call</a>
+            {kind === 'message' && (
+              replyDone ? (
+                <span style={{ color: 'var(--admin-green)', fontWeight: 700, fontSize: '0.84rem' }}>Sent ✓</span>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Write a message…"
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    maxLength={320}
+                    style={{ flex: 1 }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') sendReply() }}
+                  />
+                  <button className="admin-btn admin-btn--primary" onClick={sendReply} disabled={replying || !replyText.trim()}>
+                    {replying ? '…' : 'Send'}
+                  </button>
+                </>
+              )
             )}
-          </li>
-        ))}
-      </ul>
-      {t.items.length > 3 && (
-        <button
-          className="admin-btn"
-          style={{ padding: '2px 10px', fontSize: '0.78rem', marginBottom: 12 }}
-          onClick={() => setExpanded((v) => !v)}
-        >
-          {expanded ? 'Show less' : `Show all ${t.items.length}`}
-        </button>
-      )}
-
-      <p className="admin-stat-card__label" style={{ marginBottom: 8 }}>Reply by SMS</p>
-      {replyDone ? (
-        <p style={{ color: 'var(--admin-green)', fontWeight: 700, fontSize: '0.86rem' }}>Message sent ✓</p>
-      ) : (
-        <div style={{ display: 'flex', gap: 8 }}>
-          <input
-            type="text"
-            placeholder="Write a message…"
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
-            maxLength={320}
-            style={{ flex: 1 }}
-            onKeyDown={(e) => { if (e.key === 'Enter') sendReply() }}
-          />
-          <button className="admin-btn admin-btn--primary" onClick={sendReply} disabled={replying || !replyText.trim()}>
-            {replying ? '…' : 'Send'}
-          </button>
+          </div>
+          {replyError && <p className="admin-error">{replyError}</p>}
         </div>
       )}
-      {replyError && <p className="admin-error">{replyError}</p>}
     </div>
   )
 }

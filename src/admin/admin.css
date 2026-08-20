@@ -805,6 +805,137 @@ input[type='text']:focus {
   flex: 1;
 }
 
+/* ---------- phone manager ---------- */
+
+.admin-phone-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.admin-phone-subtitle {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 26px 0 10px;
+}
+
+.phone-log {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  margin-bottom: 8px;
+}
+
+.phone-log__row + .phone-log__row {
+  border-top: 1px solid var(--border);
+}
+
+.phone-log__summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+  transition: background-color 0.12s ease;
+}
+
+.phone-log__summary:hover {
+  background: var(--paper);
+}
+
+.phone-log__row--open .phone-log__summary {
+  background: var(--paper);
+}
+
+.phone-log__main {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.phone-log__line1 {
+  font-size: 0.9rem;
+}
+
+.phone-log__phone {
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.phone-log__preview {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.phone-log__meta {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+}
+
+.phone-log__chevron {
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+
+.phone-log__detail {
+  padding: 2px 16px 14px;
+  border-top: 1px dashed var(--border);
+}
+
+.phone-log__items {
+  list-style: none;
+  margin: 12px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.phone-log__items li {
+  font-size: 0.84rem;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.phone-log__dir {
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.phone-log__dir--in {
+  color: var(--admin-blue);
+}
+
+.phone-log__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .photo-cropper__hint {
   max-width: 360px;
   font-size: 0.8rem;

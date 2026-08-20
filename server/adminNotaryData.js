@@ -208,10 +208,34 @@ async function fetchAllTwilioPages(firstUrl, creds) {
   return pages
 }
 
-async function getPhoneThreads(rawPhone) {
+// Groups a list of { counterpart, ...item } records into per-number threads,
+// each sorted most-recent-first, then sorts the thread list the same way.
+function groupByCounterpart(records) {
+  const threads = new Map()
+  for (const r of records) {
+    const key = r.counterpart.replace(/\D/g, '').slice(-10) || r.counterpart
+    let t = threads.get(key)
+    if (!t) {
+      t = { phone: r.counterpart, items: [] }
+      threads.set(key, t)
+    }
+    t.items.push(r.item)
+  }
+  const out = Array.from(threads.values()).map((t) => {
+    t.items.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+    return { phone: t.phone, items: t.items, lastAt: t.items[0]?.at ?? null }
+  })
+  out.sort((a, b) => new Date(b.lastAt ?? 0).getTime() - new Date(a.lastAt ?? 0).getTime())
+  return out
+}
+
+// Always scoped to ONE specific notary's own Twilio number — this account
+// has more than one number (e.g. NotaryHost's own build-queue number), and
+// mixing them would show a notary calls/texts that aren't theirs.
+async function getPhoneLog(rawPhone) {
   const accountSid = process.env.TWILIO_ACCOUNT_SID
   const authToken = process.env.TWILIO_AUTH_TOKEN
-  if (!accountSid || !authToken || !rawPhone) return []
+  if (!accountSid || !authToken || !rawPhone) return { messageThreads: [], callThreads: [] }
 
   const digits = rawPhone.replace(/\D/g, '')
   const phone = digits.length === 10 ? `+1${digits}` : `+${digits}`
@@ -225,57 +249,49 @@ async function getPhoneThreads(rawPhone) {
     fetchAllTwilioPages(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Calls.json?To=${encodeURIComponent(phone)}&StartTime>=${since}&PageSize=200`, creds),
   ])
 
-  const threads = new Map()
-  function bucket(counterpart) {
-    const key = counterpart.replace(/\D/g, '').slice(-10) || counterpart
-    let t = threads.get(key)
-    if (!t) {
-      t = { phone: counterpart, items: [] }
-      threads.set(key, t)
-    }
-    return t
-  }
-
+  const messageRecords = []
   for (const page of [...msgsFrom, ...msgsTo]) {
     for (const m of page.messages ?? []) {
-      const counterpart = m.from === phone ? m.to : m.from
-      bucket(counterpart).items.push({
-        type: 'message',
-        sid: m.sid,
-        direction: m.from === phone ? 'outbound' : 'inbound',
-        body: m.body,
-        status: m.status,
-        at: m.date_sent,
-      })
-    }
-  }
-  for (const page of [...callsFrom, ...callsTo]) {
-    for (const c of page.calls ?? []) {
-      const counterpart = c.from === phone ? c.to : c.from
-      bucket(counterpart).items.push({
-        type: 'call',
-        sid: c.sid,
-        direction: c.from === phone ? 'outbound' : 'inbound',
-        duration: parseInt(c.duration ?? '0', 10) || 0,
-        status: c.status,
-        at: c.start_time,
+      messageRecords.push({
+        counterpart: m.from === phone ? m.to : m.from,
+        item: {
+          sid: m.sid,
+          direction: m.from === phone ? 'outbound' : 'inbound',
+          body: m.body,
+          status: m.status,
+          at: m.date_sent,
+        },
       })
     }
   }
 
-  const out = Array.from(threads.values()).map((t) => {
-    t.items.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
-    return { phone: t.phone, items: t.items, lastAt: t.items[0]?.at ?? null }
-  })
-  out.sort((a, b) => new Date(b.lastAt ?? 0).getTime() - new Date(a.lastAt ?? 0).getTime())
-  return out
+  const callRecords = []
+  for (const page of [...callsFrom, ...callsTo]) {
+    for (const c of page.calls ?? []) {
+      callRecords.push({
+        counterpart: c.from === phone ? c.to : c.from,
+        item: {
+          sid: c.sid,
+          direction: c.from === phone ? 'outbound' : 'inbound',
+          duration: parseInt(c.duration ?? '0', 10) || 0,
+          status: c.status,
+          at: c.start_time,
+        },
+      })
+    }
+  }
+
+  return {
+    messageThreads: groupByCounterpart(messageRecords),
+    callThreads: groupByCounterpart(callRecords),
+  }
 }
 
 router.get('/:notaryId/phone', requireAdmin, async (req, res) => {
   const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
   if (!cfg) return
-  const threads = await getPhoneThreads(cfg.twilioPhoneNumber)
-  res.json({ phoneNumber: cfg.twilioPhoneNumber, threads })
+  const log = await getPhoneLog(cfg.twilioPhoneNumber)
+  res.json({ phoneNumber: cfg.twilioPhoneNumber, ...log })
 })
 
 router.post('/:notaryId/phone/reply', requireAdmin, async (req, res) => {
