@@ -116,14 +116,56 @@ async function spendFor(accountSid, authToken, phone, startStr, endStr) {
   }
 }
 
+// Live account balance — Twilio doesn't expose real credit-card charge
+// history over the API (that's Console-only, Billing → Payment History),
+// but the current balance IS real and available.
+async function getBalance(accountSid, creds) {
+  const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Balance.json`, {
+    headers: { Authorization: `Basic ${creds}` },
+  })
+  if (!res.ok) return null
+  const data = await res.json()
+  return { balance: parseFloat(data.balance) || 0, currency: data.currency || 'USD' }
+}
+
+// The "why" — Twilio's own category breakdown of what's driving the spend
+// (SMS, MMS, calls, phone number rental, etc.), using their ThisMonth/
+// LastMonth shortcut so it matches what Console's Usage page would show.
+// Shown as-is for context only — Twilio's categories overlap (e.g. "sms"
+// duplicates "sms-inbound-longcode" + "sms-outbound-longcode"), so this
+// is NOT summed into any total here; the real per-notary/platform totals
+// below come from summing each number's own message/call `price` instead,
+// which doesn't have that double-counting risk.
+async function getUsageByCategory(accountSid, creds, shortcut) {
+  const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Usage/Records/${shortcut}.json?PageSize=1000`
+  const res = await fetch(url, { headers: { Authorization: `Basic ${creds}` } })
+  if (!res.ok) return []
+  const data = await res.json()
+  return (data.usage_records ?? [])
+    .map((r) => ({
+      category: r.category,
+      description: r.description,
+      count: parseFloat(r.count) || 0,
+      countUnit: r.count_unit,
+      price: Math.abs(parseFloat(r.price) || 0),
+    }))
+    .filter((r) => r.price > 0 || r.count > 0)
+    .sort((a, b) => b.price - a.price)
+}
+
 // GET /api/admin/twilio-spend
 // Real (not estimated) Twilio spend per notary phone number, for the
 // current and previous calendar month — the actual `price` Twilio billed
-// on every SMS/call, summed straight from their API.
+// on every SMS/call, summed straight from their API. Also connects the
+// live account balance, the account-wide category breakdown ("why" —
+// Twilio's own Usage Records, shown for context only), and NotaryHost's
+// own platform-number spend, so trackedTotal ≈ what Twilio actually
+// charged this account, not just the notary slice of it.
 router.get('/', async (req, res) => {
   try {
     const accountSid = process.env.TWILIO_ACCOUNT_SID
     const authToken = process.env.TWILIO_AUTH_TOKEN
+    const creds = accountSid && authToken ? Buffer.from(`${accountSid}:${authToken}`).toString('base64') : null
 
     const snap = await adminDb.collection('notaries').get()
     const notaries = snap.docs
@@ -133,21 +175,36 @@ router.get('/', async (req, res) => {
     const cur = monthRange(0)
     const prev = monthRange(-1)
 
-    const rows = await Promise.all(
-      notaries.map(async (n) => {
-        const [thisMonth, lastMonth] = await Promise.all([
-          spendFor(accountSid, authToken, n.twilioPhoneNumber, cur.startStr, cur.endStr),
-          spendFor(accountSid, authToken, n.twilioPhoneNumber, prev.startStr, prev.endStr),
-        ])
-        return {
-          notaryId: n.id,
-          businessName: n.businessName || n.id,
-          phoneNumber: n.twilioPhoneNumber,
-          thisMonth,
-          lastMonth,
-        }
-      })
-    )
+    // NotaryHost's OWN number (build-queue phone verification on
+    // notaryhost.com) — not a notary's number, so it's excluded from the
+    // per-notary table above, but real spend still happens on it. Computed
+    // with the exact same method (sum each message/call's real `price`) so
+    // it's directly comparable to the per-notary figures, not derived from
+    // Twilio's overlapping Usage-Record categories.
+    const platformPhone = process.env.TWILIO_PHONE_NUMBER_HOST || ''
+
+    const [rows, balance, usageThisMonth, usageLastMonth, platformThisMonth, platformLastMonth] = await Promise.all([
+      Promise.all(
+        notaries.map(async (n) => {
+          const [thisMonth, lastMonth] = await Promise.all([
+            spendFor(accountSid, authToken, n.twilioPhoneNumber, cur.startStr, cur.endStr),
+            spendFor(accountSid, authToken, n.twilioPhoneNumber, prev.startStr, prev.endStr),
+          ])
+          return {
+            notaryId: n.id,
+            businessName: n.businessName || n.id,
+            phoneNumber: n.twilioPhoneNumber,
+            thisMonth,
+            lastMonth,
+          }
+        })
+      ),
+      creds ? getBalance(accountSid, creds) : null,
+      creds ? getUsageByCategory(accountSid, creds, 'ThisMonth') : [],
+      creds ? getUsageByCategory(accountSid, creds, 'LastMonth') : [],
+      spendFor(accountSid, authToken, platformPhone, cur.startStr, cur.endStr),
+      spendFor(accountSid, authToken, platformPhone, prev.startStr, prev.endStr),
+    ])
 
     const totalsFor = (key) =>
       rows.reduce(
@@ -159,11 +216,23 @@ router.get('/', async (req, res) => {
         { smsCost: 0, callCost: 0, total: 0 }
       )
 
+    const totals = { thisMonth: totalsFor('thisMonth'), lastMonth: totalsFor('lastMonth') }
+    const platformSpend = { thisMonth: platformThisMonth, lastMonth: platformLastMonth }
+    const trackedTotal = {
+      thisMonth: round2(totals.thisMonth.total + platformSpend.thisMonth.total),
+      lastMonth: round2(totals.lastMonth.total + platformSpend.lastMonth.total),
+    }
+
     res.json({
       thisMonthLabel: cur.label,
       lastMonthLabel: prev.label,
       notaries: rows,
-      totals: { thisMonth: totalsFor('thisMonth'), lastMonth: totalsFor('lastMonth') },
+      totals,
+      balance,
+      usage: { thisMonth: usageThisMonth, lastMonth: usageLastMonth },
+      platformPhone,
+      platformSpend,
+      trackedTotal,
     })
   } catch (err) {
     console.error('[twilio-spend] failed:', err)
