@@ -8,6 +8,7 @@ import NotaryFormPage from './NotaryFormPage'
 import NotaryDetailPage from './NotaryDetailPage'
 import NotaryOperationsPage from './NotaryOperationsPage'
 import EnvelopesPage from './EnvelopesPage'
+import TwilioSpendPage from './TwilioSpendPage'
 import './admin.css'
 
 export default function AdminApp() {
@@ -23,6 +24,7 @@ export default function AdminApp() {
             <Route path="notaries/:id/operations" element={<NotaryOperationsPage />} />
             <Route path="notaries/:id/edit" element={<NotaryFormPage />} />
             <Route path="envelopes" element={<EnvelopesPage />} />
+            <Route path="twilio-spend" element={<TwilioSpendPage />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/admin" replace />} />

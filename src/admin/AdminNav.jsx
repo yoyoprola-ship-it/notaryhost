@@ -26,6 +26,9 @@ export default function AdminNav() {
           <NavLink to="/admin/envelopes" className={linkClass}>
             Envelopes
           </NavLink>
+          <NavLink to="/admin/twilio-spend" className={linkClass}>
+            Twilio spend
+          </NavLink>
         </nav>
         <button className="admin-btn admin-btn--ghost" onClick={() => signOut(auth)}>
           Sign out
