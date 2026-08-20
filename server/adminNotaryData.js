@@ -187,6 +187,129 @@ async function getTwilioStats(startDate, endDate, rawPhone) {
   return { calls: totalCalls, minutes: Math.round((totalSeconds / 60) * 10) / 10 }
 }
 
+// ─── Phone manager — calls + SMS for one notary's Twilio number, grouped
+// by the other party's number ("threads"), plus a reply-by-SMS action ──────
+
+const PHONE_LOOKBACK_DAYS = 180
+
+async function fetchAllTwilioPages(firstUrl, creds) {
+  const pages = []
+  let pageUrl = firstUrl
+  while (pageUrl) {
+    const res = await fetch(pageUrl, { headers: { Authorization: `Basic ${creds}` } })
+    if (!res.ok) {
+      console.error('[phone] Twilio API error', { url: pageUrl, status: res.status })
+      break
+    }
+    const data = await res.json()
+    pages.push(data)
+    pageUrl = data.next_page_uri ? `https://api.twilio.com${data.next_page_uri}` : null
+  }
+  return pages
+}
+
+async function getPhoneThreads(rawPhone) {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID
+  const authToken = process.env.TWILIO_AUTH_TOKEN
+  if (!accountSid || !authToken || !rawPhone) return []
+
+  const digits = rawPhone.replace(/\D/g, '')
+  const phone = digits.length === 10 ? `+1${digits}` : `+${digits}`
+  const creds = Buffer.from(`${accountSid}:${authToken}`).toString('base64')
+  const since = new Date(Date.now() - PHONE_LOOKBACK_DAYS * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+
+  const [msgsFrom, msgsTo, callsFrom, callsTo] = await Promise.all([
+    fetchAllTwilioPages(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json?From=${encodeURIComponent(phone)}&DateSent>=${since}&PageSize=200`, creds),
+    fetchAllTwilioPages(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json?To=${encodeURIComponent(phone)}&DateSent>=${since}&PageSize=200`, creds),
+    fetchAllTwilioPages(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Calls.json?From=${encodeURIComponent(phone)}&StartTime>=${since}&PageSize=200`, creds),
+    fetchAllTwilioPages(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Calls.json?To=${encodeURIComponent(phone)}&StartTime>=${since}&PageSize=200`, creds),
+  ])
+
+  const threads = new Map()
+  function bucket(counterpart) {
+    const key = counterpart.replace(/\D/g, '').slice(-10) || counterpart
+    let t = threads.get(key)
+    if (!t) {
+      t = { phone: counterpart, items: [] }
+      threads.set(key, t)
+    }
+    return t
+  }
+
+  for (const page of [...msgsFrom, ...msgsTo]) {
+    for (const m of page.messages ?? []) {
+      const counterpart = m.from === phone ? m.to : m.from
+      bucket(counterpart).items.push({
+        type: 'message',
+        sid: m.sid,
+        direction: m.from === phone ? 'outbound' : 'inbound',
+        body: m.body,
+        status: m.status,
+        at: m.date_sent,
+      })
+    }
+  }
+  for (const page of [...callsFrom, ...callsTo]) {
+    for (const c of page.calls ?? []) {
+      const counterpart = c.from === phone ? c.to : c.from
+      bucket(counterpart).items.push({
+        type: 'call',
+        sid: c.sid,
+        direction: c.from === phone ? 'outbound' : 'inbound',
+        duration: parseInt(c.duration ?? '0', 10) || 0,
+        status: c.status,
+        at: c.start_time,
+      })
+    }
+  }
+
+  const out = Array.from(threads.values()).map((t) => {
+    t.items.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+    return { phone: t.phone, items: t.items, lastAt: t.items[0]?.at ?? null }
+  })
+  out.sort((a, b) => new Date(b.lastAt ?? 0).getTime() - new Date(a.lastAt ?? 0).getTime())
+  return out
+}
+
+router.get('/:notaryId/phone', requireAdmin, async (req, res) => {
+  const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
+  if (!cfg) return
+  const threads = await getPhoneThreads(cfg.twilioPhoneNumber)
+  res.json({ phoneNumber: cfg.twilioPhoneNumber, threads })
+})
+
+router.post('/:notaryId/phone/reply', requireAdmin, async (req, res) => {
+  const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
+  if (!cfg) return
+
+  const accountSid = process.env.TWILIO_ACCOUNT_SID
+  const authToken = process.env.TWILIO_AUTH_TOKEN
+  const digits = (req.body?.to ?? '').replace(/\D/g, '').slice(-10)
+  const message = (req.body?.message ?? '').trim()
+  if (digits.length !== 10) return res.status(400).json({ error: 'invalid_phone' })
+  if (!message || message.length > 1600) return res.status(400).json({ error: 'invalid_message' })
+  if (!accountSid || !authToken || !cfg.twilioPhoneNumber) {
+    return res.status(409).json({ error: 'twilio_not_configured' })
+  }
+
+  const creds = Buffer.from(`${accountSid}:${authToken}`).toString('base64')
+  const params = new URLSearchParams({ To: `+1${digits}`, From: cfg.twilioPhoneNumber, Body: message })
+  const twRes = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Basic ${creds}`,
+    },
+    body: params.toString(),
+  })
+  if (!twRes.ok) {
+    const body = await twRes.text().catch(() => '')
+    console.error('[phone/reply] Twilio send failed', { status: twRes.status, body: body.slice(0, 500) })
+    return res.status(502).json({ error: 'send_failed' })
+  }
+  res.json({ ok: true })
+})
+
 async function saveBill(prefix, products, period, label, bookings, minutes, dueDate) {
   const bill = computeBill(products, bookings, minutes)
   const ref = adminDb.collection(`${prefix}_bills`).doc(period)

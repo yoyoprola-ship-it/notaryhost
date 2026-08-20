@@ -4,9 +4,11 @@ import { getNotary } from './notariesApi'
 import {
   cancelBooking,
   getNotaryDashboard,
+  getNotaryPhoneLog,
   markBillPaid,
   saveHours,
   saveIvrConfig,
+  sendNotaryPhoneReply,
 } from './notaryDataApi'
 
 const DAYS = [
@@ -26,6 +28,7 @@ const TABS = [
   ['bookings', 'Bookings'],
   ['billing', 'Billing'],
   ['consultations', 'Consultations'],
+  ['phone', 'Phone'],
   ['visits', 'Visits'],
   ['hours', 'Hours'],
   ['ivr', 'IVR script'],
@@ -140,6 +143,7 @@ export default function NotaryOperationsPage() {
           {tab === 'bookings' && <BookingsSection notaryId={id} bookings={data.bookings} onChange={load} />}
           {tab === 'billing' && <BillingSection notaryId={id} bills={data.bills} onChange={load} />}
           {tab === 'consultations' && <ConsultationsSection consultations={data.consultations} />}
+          {tab === 'phone' && <PhoneSection notaryId={id} />}
           {tab === 'visits' && <VisitsSection visits={data.visits} />}
           {tab === 'hours' && <HoursSection notaryId={id} hours={data.hours} />}
           {tab === 'ivr' && <IvrSection notaryId={id} ivrConfig={data.ivrConfig} />}
@@ -369,6 +373,145 @@ function ConsultationsSection({ consultations }) {
         </tbody>
       </table>
     </>
+  )
+}
+
+function formatPhone(raw) {
+  const d = (raw || '').replace(/\D/g, '').slice(-10)
+  if (d.length !== 10) return raw || '—'
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`
+}
+
+function formatDuration(s) {
+  if (!s) return '0s'
+  const m = Math.floor(s / 60)
+  const sec = s % 60
+  return m > 0 ? `${m}m ${sec}s` : `${sec}s`
+}
+
+function PhoneSection({ notaryId }) {
+  const [data, setData] = useState(null)
+  const [error, setError] = useState('')
+
+  function load() {
+    setError('')
+    return getNotaryPhoneLog(notaryId)
+      .then(setData)
+      .catch(() => setError('Could not load calls and messages.'))
+  }
+
+  useEffect(() => {
+    setData(null)
+    load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notaryId])
+
+  return (
+    <>
+      <h2 className="admin-section-title">Phone</h2>
+      <p className="admin-muted" style={{ marginBottom: 20 }}>
+        {data?.phoneNumber ? `${data.phoneNumber} — c` : 'C'}alls and messages from the last 6 months,
+        grouped by who they were with.
+      </p>
+
+      {error && <p className="admin-error">{error}</p>}
+      {!data && !error && <p className="admin-muted">Loading…</p>}
+
+      {data && data.threads.length === 0 && (
+        <p className="admin-muted">No calls or messages yet.</p>
+      )}
+
+      {data && data.threads.map((t) => (
+        <PhoneThreadCard key={t.phone} t={t} notaryId={notaryId} />
+      ))}
+    </>
+  )
+}
+
+function PhoneThreadCard({ t, notaryId }) {
+  const [expanded, setExpanded] = useState(false)
+  const [replyText, setReplyText] = useState('')
+  const [replying, setReplying] = useState(false)
+  const [replyDone, setReplyDone] = useState(false)
+  const [replyError, setReplyError] = useState('')
+
+  async function sendReply() {
+    if (replying || !replyText.trim()) return
+    setReplying(true)
+    setReplyError('')
+    try {
+      await sendNotaryPhoneReply(notaryId, t.phone, replyText.trim())
+      setReplyDone(true)
+      setReplyText('')
+    } catch {
+      setReplyError('Could not send this message.')
+    } finally {
+      setReplying(false)
+    }
+  }
+
+  const visibleItems = expanded ? t.items : t.items.slice(0, 3)
+  const calls = t.items.filter((i) => i.type === 'call').length
+  const messages = t.items.filter((i) => i.type === 'message').length
+
+  return (
+    <div className="admin-raw">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 14 }}>
+        <div>
+          <p style={{ fontWeight: 700, fontSize: '1.05rem' }}>{formatPhone(t.phone)}</p>
+          <p className="admin-muted">
+            {fmtDate(t.lastAt)} · {calls} call{calls === 1 ? '' : 's'} · {messages} message{messages === 1 ? '' : 's'}
+          </p>
+        </div>
+        <a className="admin-btn" href={`tel:${t.phone}`}>Call</a>
+      </div>
+
+      <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {visibleItems.map((item) => (
+          <li key={item.sid} style={{ fontSize: '0.86rem', display: 'flex', gap: 8, alignItems: 'baseline' }}>
+            <span style={{ fontWeight: 700, color: item.direction === 'inbound' ? 'var(--admin-blue)' : 'var(--muted)' }}>
+              {item.direction === 'inbound' ? '←' : '→'}
+            </span>
+            <span className="admin-muted" style={{ whiteSpace: 'nowrap' }}>{fmtDate(item.at)}</span>
+            {item.type === 'call' ? (
+              <span>Call · {item.status} · {formatDuration(item.duration)}</span>
+            ) : (
+              <span>{item.body}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+      {t.items.length > 3 && (
+        <button
+          className="admin-btn"
+          style={{ padding: '2px 10px', fontSize: '0.78rem', marginBottom: 12 }}
+          onClick={() => setExpanded((v) => !v)}
+        >
+          {expanded ? 'Show less' : `Show all ${t.items.length}`}
+        </button>
+      )}
+
+      <p className="admin-stat-card__label" style={{ marginBottom: 8 }}>Reply by SMS</p>
+      {replyDone ? (
+        <p style={{ color: 'var(--admin-green)', fontWeight: 700, fontSize: '0.86rem' }}>Message sent ✓</p>
+      ) : (
+        <div style={{ display: 'flex', gap: 8 }}>
+          <input
+            type="text"
+            placeholder="Write a message…"
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            maxLength={320}
+            style={{ flex: 1 }}
+            onKeyDown={(e) => { if (e.key === 'Enter') sendReply() }}
+          />
+          <button className="admin-btn admin-btn--primary" onClick={sendReply} disabled={replying || !replyText.trim()}>
+            {replying ? '…' : 'Send'}
+          </button>
+        </div>
+      )}
+      {replyError && <p className="admin-error">{replyError}</p>}
+    </div>
   )
 }
 

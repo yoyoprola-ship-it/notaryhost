@@ -23,3 +23,11 @@ export async function saveHours(notaryId, hours) {
 export async function saveIvrConfig(notaryId, config) {
   return adminFetch(`/api/admin/notaries/${notaryId}/ivr`, { method: 'PUT', body: config })
 }
+
+export async function getNotaryPhoneLog(notaryId) {
+  return adminFetch(`/api/admin/notaries/${notaryId}/phone`, { method: 'GET' })
+}
+
+export async function sendNotaryPhoneReply(notaryId, to, message) {
+  return adminFetch(`/api/admin/notaries/${notaryId}/phone/reply`, { method: 'POST', body: { to, message } })
+}

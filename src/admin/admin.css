@@ -368,8 +368,10 @@
   box-shadow: 0 0 0 3px rgba(224, 165, 28, 0.3);
 }
 
-/* the Envelopes search box lives outside .admin-form — same look */
-input[type='search'] {
+/* the Envelopes search box and Phone reply box live outside .admin-form —
+   same look */
+input[type='search'],
+input[type='text'] {
   font-family: var(--sans);
   font-size: 0.95rem;
   padding: 10px 14px;
@@ -379,7 +381,8 @@ input[type='search'] {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-input[type='search']:focus {
+input[type='search']:focus,
+input[type='text']:focus {
   outline: none;
   border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(224, 165, 28, 0.3);
