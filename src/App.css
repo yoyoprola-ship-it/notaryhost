@@ -184,6 +184,14 @@
   color: #9296b8;
 }
 
+.section__subtitle {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: inherit;
+  margin: 44px 0 20px;
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 2.5px;

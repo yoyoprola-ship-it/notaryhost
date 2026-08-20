@@ -34,6 +34,29 @@ const steps = [
   },
 ]
 
+const urgentAdvantages = [
+  {
+    icon: 'bolt',
+    title: 'No phone calls',
+    text: 'A text instead of a ring — check it on your own time, even mid-appointment.',
+  },
+  {
+    icon: 'shield',
+    title: 'No interruptions',
+    text: "You're never pulled away from a client just to say you can't talk right now.",
+  },
+  {
+    icon: 'gauge',
+    title: 'Faster response',
+    text: 'One word — YES — is all it takes to confirm you can help.',
+  },
+  {
+    icon: 'check',
+    title: 'Never miss urgent business',
+    text: "Even when you can't talk, you can still say yes and keep the client.",
+  },
+]
+
 export default function IVR() {
   return (
     <section className="section section--dark" id="how-it-works">
@@ -77,6 +100,23 @@ export default function IVR() {
             not a fixed script.
           </p>
         </Reveal>
+
+        <Reveal delay={steps.length * 100 + 80}>
+          <h3 className="section__subtitle">Why urgent service beats a phone call</h3>
+        </Reveal>
+        <div className="grid grid--4">
+          {urgentAdvantages.map((a, i) => (
+            <Reveal key={a.title} delay={steps.length * 100 + 160 + i * 90}>
+              <div className="card card--tint">
+                <span className="icon-badge">
+                  <Icon name={a.icon} />
+                </span>
+                <h4 className="card__title">{a.title}</h4>
+                <p className="card__text">{a.text}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   )

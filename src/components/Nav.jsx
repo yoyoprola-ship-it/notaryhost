@@ -8,6 +8,7 @@ const links = [
   { href: '#website', label: 'Website', icon: 'globe' },
   { href: '#confirmations', label: 'Confirmations', icon: 'bell' },
   { href: '#how-it-works', label: 'Phone robot (IVR)', icon: 'mic' },
+  { href: '#mobile-dispatch', label: 'Mobile dispatch', icon: 'truck' },
   { href: '#dashboard', label: 'Dashboard', icon: 'gauge' },
   { href: '#tech', label: 'Technology', icon: 'cloud' },
   { href: '#who-for', label: "Who it's for", icon: 'scale' },

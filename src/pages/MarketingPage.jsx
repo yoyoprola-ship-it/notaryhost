@@ -6,6 +6,7 @@ import WhatIBuild from '../sections/WhatIBuild'
 import WebsiteFeature from '../sections/WebsiteFeature'
 import Confirmations from '../sections/Confirmations'
 import IVR from '../sections/IVR'
+import MobileDispatch from '../sections/MobileDispatch'
 import Dashboard from '../sections/Dashboard'
 import Tech from '../sections/Tech'
 import WhoFor from '../sections/WhoFor'
@@ -38,6 +39,7 @@ export default function MarketingPage() {
       <WebsiteFeature />
       <Confirmations />
       <IVR />
+      <MobileDispatch />
       <Dashboard />
       <Tech />
       <WhoFor />
