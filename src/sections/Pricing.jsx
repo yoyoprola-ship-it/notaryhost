@@ -28,7 +28,7 @@ const plans = [
     title: 'Urgent service',
     price: '$15',
     text: 'The website button and IVR option that text you the moment a client needs you right now — includes up to 35 requests per month.',
-    note: 'Additional: $0.50 per request.',
+    note: 'Additional: $0.49 per request.',
   },
 ]
 
