@@ -6,7 +6,7 @@ const plans = [
     icon: 'globe',
     title: 'Website + dashboard',
     price: '$64',
-    text: 'We design and build your custom website for you — no separate build fee, and no fixed template — includes an urgent-service request button, subdomain, hosting, and admin dashboard.',
+    text: 'We design and build your custom website for you — no separate build fee, and no fixed template — includes subdomain, hosting, and admin dashboard.',
     note: 'Unlimited visits.',
   },
   {
@@ -23,6 +23,13 @@ const plans = [
     text: 'Includes up to 50 minutes per month. Menu and voice prompts are written to your request, not a fixed script.',
     note: 'Additional: $0.59 per minute.',
   },
+  {
+    icon: 'bolt',
+    title: 'Urgent service',
+    price: '$20',
+    text: 'The website button and IVR option that text you the moment a client needs you right now — includes up to 50 requests per month.',
+    note: 'Additional: $0.33 per request.',
+  },
 ]
 
 export default function Pricing() {
@@ -38,7 +45,7 @@ export default function Pricing() {
             discount.
           </p>
         </Reveal>
-        <div className="grid grid--3">
+        <div className="grid grid--4">
           {plans.map((plan, i) => (
             <Reveal key={plan.title} delay={i * 90}>
               <div className="card">
