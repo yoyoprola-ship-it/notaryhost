@@ -31,11 +31,11 @@ export default function Nav() {
 
   return (
     <header className="site-nav site-nav--banner">
-      <a className="site-nav__banner-link" href="#top" aria-label="NotaryHost — home">
-        <img className="site-nav__banner-img" src="/notaryhost-nav-banner.png" alt="Notary Host" />
-      </a>
-
       <div className="section-inner site-nav__inner">
+        <a className="site-nav__banner-link" href="#top" aria-label="NotaryHost — home">
+          <img className="site-nav__banner-img" src="/notaryhost-nav-banner.png" alt="Notary Host" />
+        </a>
+
         <button
           type="button"
           className="site-nav__toggle"

@@ -379,6 +379,26 @@
   padding-bottom: 0;
 }
 
+/* Full-bleed cover works great on narrow screens (the crop fills the
+   whole width and the wordmark reads big and bold), but stretched across
+   a wide desktop monitor the same crop leaves the logo tiny in a sea of
+   empty photo padding. Past the mobile breakpoint, cap it to a fixed-size
+   logo box aligned with the rest of the page's content instead. */
+@media (min-width: 701px) {
+  .site-nav--banner .site-nav__inner {
+    justify-content: space-between;
+  }
+
+  .site-nav__banner-link {
+    position: static;
+    width: 640px;
+    height: 100%;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+}
+
 /* Below ~700px the banner's wide scene starts getting cropped tighter
    horizontally than vertically (cover math), which would cut the
    wordmark and put the toggle right on top of the text. A shorter strip
