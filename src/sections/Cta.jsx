@@ -9,9 +9,16 @@ const SERVICES = [
   { value: 'booking', label: 'Booking system', price: 19 },
   { value: 'ivr', label: 'Phone robot (IVR)', price: 25 },
   { value: 'urgent', label: 'Urgent service', price: 15 },
+  { value: 'mobile', label: 'Mobile dispatch', price: 19 },
 ]
 
-// 10% off the sum of all four, rounded: (64+19+25+15) * 0.9 = 110.7 → 111.
+// The bundle only covers the four universal services — mobile dispatch is
+// a mobile-notary-only add-on, priced separately even when the bundle
+// applies (matches the Pricing/Comparison sections).
+const CORE_SERVICES = ['website', 'booking', 'ivr', 'urgent']
+
+// 10% off the sum of the four core services, rounded: (64+19+25+15) * 0.9
+// = 110.7 → 111.
 const BUNDLE_PRICE = 111
 
 // Must stay word-for-word identical to the copy in server/queue.js — the
@@ -21,8 +28,12 @@ const SMS_CONSENT_TEXT =
   'I agree to receive SMS text messages from NotaryHost about my account, appointments, and services. Message & data rates may apply. Reply STOP to opt out.'
 
 function monthlyTotal(products) {
-  if (products.length === SERVICES.length) return BUNDLE_PRICE
-  return SERVICES.filter((s) => products.includes(s.value)).reduce((sum, s) => sum + s.price, 0)
+  const hasAllCore = CORE_SERVICES.every((v) => products.includes(v))
+  const coreTotal = hasAllCore
+    ? BUNDLE_PRICE
+    : SERVICES.filter((s) => CORE_SERVICES.includes(s.value) && products.includes(s.value)).reduce((sum, s) => sum + s.price, 0)
+  const mobileTotal = products.includes('mobile') ? SERVICES.find((s) => s.value === 'mobile').price : 0
+  return coreTotal + mobileTotal
 }
 
 export default function Cta() {
@@ -154,7 +165,7 @@ export default function Cta() {
               {products.length > 0 && (
                 <p className="cta__bill">
                   Estimated monthly bill: <strong>${monthlyTotal(products)}/mo</strong>
-                  {products.length === SERVICES.length && ' (bundle discount applied)'}
+                  {CORE_SERVICES.every((v) => products.includes(v)) && ' (bundle discount applied)'}
                 </p>
               )}
               <input
