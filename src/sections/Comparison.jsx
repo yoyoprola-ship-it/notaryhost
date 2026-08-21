@@ -62,11 +62,11 @@ export default function Comparison() {
           <div className="bundle">
             <p className="eyebrow eyebrow--light">Your investment with us</p>
             <p className="price price--lg">
-              $99<span>/ mo</span>
+              $111<span>/ mo</span>
             </p>
             <p className="bundle__text">
-              Website + booking + SMS verification + bilingual IVR + admin
-              dashboard — all in one place.
+              Website + booking + SMS verification + bilingual IVR + urgent
+              service + admin dashboard — all in one place.
             </p>
           </div>
         </Reveal>

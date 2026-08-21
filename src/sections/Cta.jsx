@@ -8,9 +8,11 @@ const SERVICES = [
   { value: 'website', label: 'Website + dashboard', price: 64 },
   { value: 'booking', label: 'Booking system', price: 19 },
   { value: 'ivr', label: 'Phone robot (IVR)', price: 25 },
+  { value: 'urgent', label: 'Urgent service', price: 15 },
 ]
 
-const BUNDLE_PRICE = 99
+// 10% off the sum of all four, rounded: (64+19+25+15) * 0.9 = 110.7 → 111.
+const BUNDLE_PRICE = 111
 
 // Must stay word-for-word identical to the copy in server/queue.js — the
 // server records this exact string as the consent evidence, so what's

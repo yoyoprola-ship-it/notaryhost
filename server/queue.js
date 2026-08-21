@@ -5,7 +5,7 @@ import { adminAuth, adminDb } from './firebaseAdmin.js'
 
 const router = Router()
 
-const VALID_PRODUCTS = ['website', 'booking', 'ivr']
+const VALID_PRODUCTS = ['website', 'booking', 'ivr', 'urgent']
 
 // Must stay word-for-word identical to the copy in src/sections/Cta.jsx —
 // this is the canonical text recorded as consent evidence, not whatever
@@ -19,7 +19,7 @@ function formatPhone(e164) {
   return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`
 }
 
-const PRODUCT_LABELS = { website: 'website', booking: 'booking system', ivr: 'phone robot (IVR)' }
+const PRODUCT_LABELS = { website: 'website', booking: 'booking system', ivr: 'phone robot (IVR)', urgent: 'urgent service' }
 
 // Best-effort — a notification failure should never block the signup itself.
 async function notifyAdminSms(ownerName, phone, wants) {

@@ -41,7 +41,7 @@ export default function Pricing() {
         </Reveal>
         <Reveal delay={80}>
           <p className="section__lead">
-            Each service works on its own — or bundle all three for a
+            Each service works on its own — or bundle all four for a
             discount.
           </p>
         </Reveal>
@@ -67,14 +67,15 @@ export default function Pricing() {
           <div className="bundle">
             <p className="eyebrow eyebrow--light">Complete package</p>
             <p className="price price--lg">
-              $99<span>/ mo</span>
+              $111<span>/ mo</span>
             </p>
             <p className="bundle__save">
-              Separately: $108/mo → you save $9/mo
+              Separately: $123/mo → you save $12/mo
             </p>
             <p className="bundle__text">
               Website + admin dashboard + booking system + phone robot (IVR)
-              — all together, at a bundled discount.
+              + urgent service — all together, at a bundled discount (10%
+              off).
             </p>
           </div>
         </Reveal>
