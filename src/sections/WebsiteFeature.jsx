@@ -5,7 +5,7 @@ const bullets = [
   'Notarization types & services offered',
   'Service area with an interactive map',
   'Availability and typical response time',
-  'Urgent-service button — texts you instantly, confirms in under a minute',
+  'Urgent-service button — texts you instantly, confirms in under 2 minutes',
 ]
 
 export default function WebsiteFeature() {
