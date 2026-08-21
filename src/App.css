@@ -344,73 +344,54 @@
   border-bottom: 1px solid rgba(236, 206, 142, 0.12);
 }
 
-/* Full-bleed logo banner behind the main site nav (homepage only — the
-   lightweight headers on Privacy/Terms/Directory keep the plain dark bar
-   since they only use the shared .site-nav/.site-nav__inner classes). */
+/* Logo banner behind the main site nav (homepage only — the lightweight
+   headers on Privacy/Terms/Directory keep the plain dark bar since they
+   only use the shared .site-nav/.site-nav__inner classes). The whole
+   image is always shown uncropped (object-fit: contain) — it just won't
+   always fill the full box width, which is fine. Everything here is a
+   normal in-flow flex item (no position: absolute) specifically so it
+   can never sit on top of the toggle button and steal its clicks. */
 .site-nav--banner {
-  height: 96px;
+  height: 76px;
   background: #f7f1e6;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-bottom: none;
   box-shadow: 0 1px 0 rgba(16, 19, 46, 0.1);
-  overflow: hidden;
+}
+
+.site-nav--banner .site-nav__inner {
+  height: 100%;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .site-nav__banner-link {
-  position: absolute;
-  inset: 0;
   display: block;
+  height: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
+  max-width: 640px;
 }
 
 .site-nav__banner-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center;
+  object-fit: contain;
+  object-position: left center;
   display: block;
 }
 
-.site-nav--banner .site-nav__inner {
-  position: relative;
-  height: 100%;
-  justify-content: flex-end;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-/* Full-bleed cover works great on narrow screens (the crop fills the
-   whole width and the wordmark reads big and bold), but stretched across
-   a wide desktop monitor the same crop leaves the logo tiny in a sea of
-   empty photo padding. Past the mobile breakpoint, cap it to a fixed-size
-   logo box aligned with the rest of the page's content instead. */
-@media (min-width: 701px) {
-  .site-nav--banner .site-nav__inner {
-    justify-content: space-between;
-  }
-
-  .site-nav__banner-link {
-    position: static;
-    width: 640px;
-    height: 100%;
-    flex: 0 0 auto;
-    overflow: hidden;
-    border-radius: 12px;
-  }
-}
-
-/* Below ~700px the banner's wide scene starts getting cropped tighter
-   horizontally than vertically (cover math), which would cut the
-   wordmark and put the toggle right on top of the text. A shorter strip
-   here needs a much smaller vertical scale, so a wider horizontal slice
-   of the image stays visible and the wordmark reads fully. */
 @media (max-width: 700px) {
   .site-nav--banner {
-    height: 52px;
+    height: 56px;
   }
   .site-nav--banner .site-nav__toggle {
     width: 32px;
     height: 32px;
+    flex-shrink: 0;
   }
 }
 
@@ -578,7 +559,7 @@
   color: #fff;
   overflow: hidden;
   padding-bottom: 110px;
-  padding-top: 114px;
+  padding-top: 94px;
 }
 
 .hero__glow {
@@ -654,7 +635,7 @@
 
 @media (max-width: 700px) {
   .hero {
-    padding-top: 72px;
+    padding-top: 76px;
   }
   .hero__title {
     font-size: 2.6rem;
