@@ -30,15 +30,12 @@ export default function Nav() {
   }, [open])
 
   return (
-    <header className="site-nav">
-      <div className="section-inner site-nav__inner">
-        <a className="brand" href="#top">
-          <span className="brand__mark">
-            <Icon name="seal" size={18} />
-          </span>
-          <span>NotaryHost</span>
-        </a>
+    <header className="site-nav site-nav--banner">
+      <a className="site-nav__banner-link" href="#top" aria-label="NotaryHost — home">
+        <img className="site-nav__banner-img" src="/notaryhost-nav-banner.png" alt="Notary Host" />
+      </a>
 
+      <div className="section-inner site-nav__inner">
         <button
           type="button"
           className="site-nav__toggle"

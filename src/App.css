@@ -344,6 +344,56 @@
   border-bottom: 1px solid rgba(236, 206, 142, 0.12);
 }
 
+/* Full-bleed logo banner behind the main site nav (homepage only — the
+   lightweight headers on Privacy/Terms/Directory keep the plain dark bar
+   since they only use the shared .site-nav/.site-nav__inner classes). */
+.site-nav--banner {
+  height: 96px;
+  background: #f7f1e6;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: none;
+  box-shadow: 0 1px 0 rgba(16, 19, 46, 0.1);
+  overflow: hidden;
+}
+
+.site-nav__banner-link {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.site-nav__banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.site-nav--banner .site-nav__inner {
+  position: relative;
+  height: 100%;
+  justify-content: flex-end;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Below ~700px the banner's wide scene starts getting cropped tighter
+   horizontally than vertically (cover math), which would cut the
+   wordmark and put the toggle right on top of the text. A shorter strip
+   here needs a much smaller vertical scale, so a wider horizontal slice
+   of the image stays visible and the wordmark reads fully. */
+@media (max-width: 700px) {
+  .site-nav--banner {
+    height: 52px;
+  }
+  .site-nav--banner .site-nav__toggle {
+    width: 32px;
+    height: 32px;
+  }
+}
+
 .site-nav__inner {
   display: flex;
   align-items: center;
@@ -363,9 +413,10 @@
   gap: 5px;
   width: 38px;
   height: 38px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(16, 19, 46, 0.25);
   border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(16, 19, 46, 0.18);
   cursor: pointer;
 }
 
@@ -374,7 +425,7 @@
   width: 16px;
   height: 2px;
   margin: 0 auto;
-  background: #fff;
+  background: var(--navy-900);
   border-radius: 2px;
 }
 
@@ -507,7 +558,7 @@
   color: #fff;
   overflow: hidden;
   padding-bottom: 110px;
-  padding-top: 88px;
+  padding-top: 114px;
 }
 
 .hero__glow {
@@ -582,6 +633,9 @@
 }
 
 @media (max-width: 700px) {
+  .hero {
+    padding-top: 72px;
+  }
   .hero__title {
     font-size: 2.6rem;
   }
