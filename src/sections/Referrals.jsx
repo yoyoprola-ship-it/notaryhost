@@ -4,8 +4,8 @@ import Reveal from '../components/Reveal'
 const steps = [
   {
     icon: 'seal',
-    title: 'Refer another notary',
-    text: 'Tell them about NotaryHost — a website, booking system, and phone robot built for notaries, not a generic template.',
+    title: 'Share your personal link',
+    text: 'Every notary gets their own permanent referral link — it never changes. Send it however you like: text, email, in person.',
   },
   {
     icon: 'check',

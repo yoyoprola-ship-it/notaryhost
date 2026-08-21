@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 import { auth } from '../firebase'
 import Icon from '../components/Icon'
@@ -33,6 +33,21 @@ export default function Cta() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [confirmation, setConfirmation] = useState(null)
+  const [referralCode, setReferralCode] = useState('')
+  const [referrerName, setReferrerName] = useState('')
+
+  // ?ref=<code> on the URL — the notary's own permanent referral link.
+  // Resolved against the server (not stored client-side) so a random
+  // string in the URL can't fake a referrer's name.
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get('ref')
+    if (!ref) return
+    setReferralCode(ref)
+    fetch(`/api/queue/referral/${encodeURIComponent(ref)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data?.businessName) setReferrerName(data.businessName) })
+      .catch(() => {})
+  }, [])
 
   function toggleProduct(value) {
     setProducts((p) => (p.includes(value) ? p.filter((x) => x !== value) : [...p, value]))
@@ -75,7 +90,7 @@ export default function Cta() {
       const res = await fetch('/api/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
-        body: JSON.stringify({ products, name: name.trim(), smsConsent }),
+        body: JSON.stringify({ products, name: name.trim(), smsConsent, referralCode }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || 'Could not join the queue.')
@@ -100,6 +115,16 @@ export default function Cta() {
             Want your notary practice to run like this?
           </h2>
           <p className="cta__subtitle">Reserve your spot in the build queue.</p>
+
+          {referrerName && (
+            <div className="cta__notice cta__notice--referral">
+              <Icon name="seal" size={16} />
+              <span>
+                You were referred by <strong>{referrerName}</strong> — they&rsquo;ll get a
+                free month once your site is live and you&rsquo;re paying.
+              </span>
+            </div>
+          )}
 
           <div className="cta__notice">
             <Icon name="shield" size={16} />

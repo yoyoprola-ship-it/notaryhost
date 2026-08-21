@@ -1139,6 +1139,10 @@
   flex-shrink: 0;
 }
 
+.cta__notice--referral {
+  margin-bottom: 14px;
+}
+
 .cta__form {
   width: 100%;
   max-width: 420px;

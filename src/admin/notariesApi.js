@@ -3,12 +3,23 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
   orderBy,
   query,
   serverTimestamp,
+  updateDoc,
+  where,
   writeBatch,
 } from 'firebase/firestore'
 import { db } from '../firebase'
+
+// Short, permanent, and never regenerated once set — this is what goes in
+// a notary's referral link (?ref=<code>), so it has to stay stable forever.
+function generateReferralCode() {
+  return (
+    Math.random().toString(36).slice(2, 8) + Math.random().toString(36).slice(2, 6)
+  )
+}
 
 const notariesRef = collection(db, 'notaries')
 
@@ -61,6 +72,7 @@ export async function createNotary(data) {
   const batch = writeBatch(db)
   batch.set(notaryRef, {
     ...data,
+    referralCode: data.referralCode || generateReferralCode(),
     stripeCustomerId: null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -91,6 +103,32 @@ export async function updateNotary(id, data) {
   }
 
   await batch.commit()
+}
+
+// Lazily backfills a referral code for notaries created before this
+// feature existed — generated once, then permanent like any other.
+export async function ensureReferralCode(id, currentCode) {
+  if (currentCode) return currentCode
+  const code = generateReferralCode()
+  await updateDoc(doc(db, 'notaries', id), { referralCode: code })
+  return code
+}
+
+// Most recent period this notary's own bills collection shows as paid —
+// used on a referrer's page to show "paid through {period}" for each
+// confirmed referral, straight from the same bill records the billing
+// tab already saves, not a separate duplicated ledger.
+export async function getLastPaidBillPeriod(prefix) {
+  if (!prefix) return null
+  const snap = await getDocs(
+    query(
+      collection(db, `${prefix}_bills`),
+      where('status', '==', 'paid'),
+      orderBy('period', 'desc'),
+      limit(1)
+    )
+  )
+  return snap.empty ? null : snap.docs[0].data().period
 }
 
 export async function deleteNotary(id) {

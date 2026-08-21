@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { deleteNotary, getNotary, listNotaries } from './notariesApi'
+import { deleteNotary, ensureReferralCode, getLastPaidBillPeriod, getNotary, listNotaries } from './notariesApi'
 
 function dayOrdinalSuffix(day) {
   if (day % 10 === 1 && day !== 11) return 'st'
@@ -14,17 +14,36 @@ export default function NotaryDetailPage() {
   const navigate = useNavigate()
   const [notary, setNotary] = useState(null)
   const [allNotaries, setAllNotaries] = useState([])
+  const [lastPaidByReferral, setLastPaidByReferral] = useState({})
+  const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     Promise.all([getNotary(id), listNotaries()])
-      .then(([n, all]) => {
+      .then(async ([n, all]) => {
+        if (n && !n.referralCode) {
+          n.referralCode = await ensureReferralCode(n.id, n.referralCode)
+        }
         setNotary(n)
         setAllNotaries(all)
+
+        const referred = all.filter((r) => r.referredBy === id && r.firstPaymentDate)
+        const entries = await Promise.all(
+          referred.map(async (r) => [r.id, await getLastPaidBillPeriod(r.collectionPrefix)])
+        )
+        setLastPaidByReferral(Object.fromEntries(entries))
       })
       .finally(() => setLoading(false))
   }, [id])
+
+  function handleCopyLink() {
+    const link = `https://notaryhost.com/?ref=${notary.referralCode}`
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
 
   async function handleDelete() {
     if (!window.confirm(`Delete ${notary.businessName}? This cannot be undone.`)) return
@@ -109,6 +128,16 @@ export default function NotaryDetailPage() {
         <dt>Stripe customer</dt>
         <dd>{notary.stripeCustomerId || 'Not connected yet'}</dd>
 
+        <dt>Referral link</dt>
+        <dd>
+          <code>https://notaryhost.com/?ref={notary.referralCode || '…'}</code>{' '}
+          {notary.referralCode && (
+            <button className="admin-btn" onClick={handleCopyLink} style={{ padding: '2px 10px', fontSize: '0.78rem' }}>
+              {copied ? 'Copied ✓' : 'Copy'}
+            </button>
+          )}
+        </dd>
+
         <dt>Referred by</dt>
         <dd>
           {referrer ? (
@@ -123,17 +152,22 @@ export default function NotaryDetailPage() {
           {referred.length === 0 ? (
             '—'
           ) : (
-            <>
-              {referred.map((n, i) => (
-                <span key={n.id}>
-                  {i > 0 && ', '}
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              {referred.map((n) => (
+                <li key={n.id}>
                   <Link to={`/admin/notaries/${n.id}`}>{n.businessName}</Link>
-                  {n.firstPaymentDate ? '' : ' (not paying yet)'}
-                </span>
+                  {n.firstPaymentDate ? (
+                    <span className="admin-muted">
+                      {' '}
+                      — confirmed, paid through {lastPaidByReferral[n.id] || '—'}
+                    </span>
+                  ) : (
+                    <span className="admin-muted"> — not paying yet</span>
+                  )}
+                </li>
               ))}
-            </>
+            </ul>
           )}
-          {' — '}
           <strong>{notary.freeMonthsRemaining || 0}</strong> free month
           {(notary.freeMonthsRemaining || 0) === 1 ? '' : 's'} available
           {notary.freeMonthsEarnedTotal ? ` (${notary.freeMonthsEarnedTotal} earned all-time)` : ''}

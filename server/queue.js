@@ -75,6 +75,21 @@ async function notifyAdmin(ownerName, phone, products) {
   ])
 }
 
+function generateReferralCode() {
+  return Math.random().toString(36).slice(2, 8) + Math.random().toString(36).slice(2, 6)
+}
+
+// Public — the "reserve your spot" form on the homepage looks this up
+// (via ?ref=<code> in the URL) to show "You're being referred by X" before
+// the visitor even signs up. Only the business name is safe to expose here.
+router.get('/referral/:code', async (req, res) => {
+  const code = (req.params.code || '').trim()
+  if (!code) return res.status(400).json({ error: 'missing_code' })
+  const snap = await adminDb.collection('notaries').where('referralCode', '==', code).limit(1).get()
+  if (snap.empty) return res.status(404).json({ error: 'not_found' })
+  res.json({ businessName: snap.docs[0].data().businessName || 'A NotaryHost notary' })
+})
+
 // Public — anyone with a phone-verified Firebase ID token (from the
 // website's "reserve your spot" form) can join the build queue. Not
 // admin-gated on purpose: this is how prospective notaries sign up.
@@ -111,6 +126,18 @@ router.post('/', async (req, res) => {
     return res.json({ ok: true, alreadyQueued: true })
   }
 
+  // Referral code from the link they arrived on (?ref=<code>) — resolved
+  // server-side against the referrer's own record, never trusted as a raw
+  // notary id from the client. Whoever owns this code earns a free month
+  // automatically once this lead's first bill is marked paid (see
+  // server/adminNotaryData.js).
+  let referredBy = null
+  const referralCode = typeof req.body?.referralCode === 'string' ? req.body.referralCode.trim() : ''
+  if (referralCode) {
+    const referrerSnap = await adminDb.collection('notaries').where('referralCode', '==', referralCode).limit(1).get()
+    if (!referrerSnap.empty) referredBy = referrerSnap.docs[0].id
+  }
+
   // Consent evidence for SMS marketing (TCPA) — phone comes from the
   // Firebase-verified token and the timestamp from the server, so neither
   // can be spoofed by the client. If this is ever disputed, this record is
@@ -125,6 +152,8 @@ router.post('/', async (req, res) => {
     description: '',
     status: 'lead',
     notes: 'Joined the build queue from the website — phone-verified, no other details yet.',
+    referredBy,
+    referralCode: generateReferralCode(),
     smsConsent: {
       text: SMS_CONSENT_TEXT,
       phone,
