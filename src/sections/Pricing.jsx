@@ -30,6 +30,13 @@ const plans = [
     text: 'The website button and IVR option that text you the moment a client needs you right now — includes up to 35 requests per month.',
     note: 'Additional: $0.49 per request.',
   },
+  {
+    icon: 'truck',
+    title: 'Mobile dispatch',
+    price: '$19',
+    text: 'On-site urgent notarization: address autocomplete, automatic distance fee, and payment on your terms — includes up to 35 requests per month.',
+    note: 'Additional: $0.65 per request. Mobile notaries only — not part of the bundle.',
+  },
 ]
 
 export default function Pricing() {
@@ -45,7 +52,7 @@ export default function Pricing() {
             discount.
           </p>
         </Reveal>
-        <div className="grid grid--4">
+        <div className="grid grid--3">
           {plans.map((plan, i) => (
             <Reveal key={plan.title} delay={i * 90}>
               <div className="card">
