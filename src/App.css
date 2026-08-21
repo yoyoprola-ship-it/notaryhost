@@ -806,6 +806,7 @@
   padding: 24px 32px;
   font-size: 1.05rem;
   color: var(--text-dark);
+  margin-top: 32px;
   margin-bottom: 32px;
 }
 
@@ -1151,10 +1152,11 @@
 
 .cta__services {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px 24px;
-  margin-bottom: 20px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 auto 20px;
+  width: fit-content;
 }
 
 .cta__service {
