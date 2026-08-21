@@ -2,7 +2,12 @@ import LegalPage from './LegalPage'
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms & Conditions" updated="July 27, 2026">
+    <LegalPage
+      title="Terms & Conditions"
+      updated="July 27, 2026"
+      path="/terms"
+      description="The terms and conditions for notaries subscribing to NotaryHost's website, booking system, and phone robot platform."
+    >
       <p className="legal__note">
         This is a general-purpose terms template drafted for NotaryHost's actual services and
         pricing. It is not legal advice — have it reviewed by an attorney before treating it as

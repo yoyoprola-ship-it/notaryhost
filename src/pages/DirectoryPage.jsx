@@ -1,13 +1,36 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../firebase'
 import Icon from '../components/Icon'
 import Footer from '../sections/Footer'
+import usePageMeta from '../lib/usePageMeta'
 
 export default function DirectoryPage() {
   const [notaries, setNotaries] = useState(null)
   const [error, setError] = useState('')
+
+  const structuredData = useMemo(() => {
+    if (!notaries || notaries.length === 0) return undefined
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      itemListElement: notaries.map((n, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: n.businessName,
+        url: `https://${n.slug}.notaryhost.com`,
+      })),
+    }
+  }, [notaries])
+
+  usePageMeta({
+    title: 'Notary Directory — NotaryHost',
+    description:
+      'Browse notaries running their own bilingual website, booking system, and phone line — built and hosted by NotaryHost.',
+    url: 'https://notaryhost.com/notaries',
+    structuredData,
+  })
 
   useEffect(() => {
     getDocs(collection(db, 'publicNotaryProfiles'))

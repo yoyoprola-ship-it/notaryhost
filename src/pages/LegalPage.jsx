@@ -1,7 +1,14 @@
 import { Link } from 'react-router-dom'
 import Footer from '../sections/Footer'
+import usePageMeta from '../lib/usePageMeta'
 
-export default function LegalPage({ title, updated, children }) {
+export default function LegalPage({ title, updated, description, path, children }) {
+  usePageMeta({
+    title: `${title} — NotaryHost`,
+    description,
+    url: `https://notaryhost.com${path}`,
+  })
+
   return (
     <div className="page">
       <header className="site-nav">

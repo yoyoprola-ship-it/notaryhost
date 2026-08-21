@@ -2,7 +2,12 @@ import LegalPage from './LegalPage'
 
 export default function PrivacyPolicyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="July 25, 2026">
+    <LegalPage
+      title="Privacy Policy"
+      updated="July 25, 2026"
+      path="/privacy"
+      description="How NotaryHost collects, uses, and protects data for notaries who use our website, booking system, and phone robot platform."
+    >
       <p className="legal__note">
         This policy is a general-purpose template drafted for NotaryHost's actual services and
         data flows. It is not legal advice — have it reviewed by an attorney before treating it

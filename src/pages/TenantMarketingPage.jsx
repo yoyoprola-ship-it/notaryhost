@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase'
 import Icon from '../components/Icon'
+import usePageMeta from '../lib/usePageMeta'
 
 export default function TenantMarketingPage({ slug }) {
   const [profile, setProfile] = useState(undefined)
@@ -11,6 +12,30 @@ export default function TenantMarketingPage({ slug }) {
       .then((snap) => setProfile(snap.exists() ? snap.data() : null))
       .catch(() => setProfile(null))
   }, [slug])
+
+  const structuredData = useMemo(() => {
+    if (!profile) return undefined
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name: profile.businessName,
+      description: profile.description || undefined,
+      telephone: profile.ownerPhone || undefined,
+      email: profile.ownerEmail || undefined,
+      url: `https://${slug}.notaryhost.com/`,
+      image: profile.photoUrl || undefined,
+    }
+  }, [profile, slug])
+
+  usePageMeta({
+    title: profile ? `${profile.businessName} — Notary` : 'NotaryHost',
+    description:
+      profile?.description || `${profile?.businessName || 'Notary'}, powered by NotaryHost.`,
+    url: `https://${slug}.notaryhost.com/`,
+    image: profile?.photoUrl,
+    type: 'business.business',
+    structuredData,
+  })
 
   return (
     <div className="tenant-page">

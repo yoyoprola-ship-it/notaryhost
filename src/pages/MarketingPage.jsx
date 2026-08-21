@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import usePageMeta from '../lib/usePageMeta'
 import Nav from '../components/Nav'
 import Hero from '../sections/Hero'
 import HeroBanner from '../sections/HeroBanner'
@@ -21,6 +22,22 @@ import Cta from '../sections/Cta'
 import Footer from '../sections/Footer'
 
 export default function MarketingPage() {
+  usePageMeta({
+    title: 'NotaryHost — Digital Solutions for Notaries',
+    description:
+      'NotaryHost builds bilingual websites, 24/7 signing bookings, phone answering, and client dashboards made specifically for notaries and loan signing agents.',
+    url: 'https://notaryhost.com/',
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'NotaryHost',
+      url: 'https://notaryhost.com/',
+      logo: 'https://notaryhost.com/notaryhost-banner.jpg',
+      description:
+        'NotaryHost builds bilingual websites, 24/7 signing bookings, phone answering, and client dashboards made specifically for notaries and loan signing agents.',
+    },
+  })
+
   useEffect(() => {
     // Empty-body POSTs get rejected upstream with 411 Length Required, so
     // send a tiny real body to guarantee a Content-Length header goes out.
