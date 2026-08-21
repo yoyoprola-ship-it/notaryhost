@@ -22,6 +22,11 @@ const items = [
     title: 'Admin dashboard',
     text: 'See every appointment, signing, and client message from any device.',
   },
+  {
+    icon: 'bolt',
+    title: 'Urgent service',
+    text: 'A one-tap button on your site and a first option on your phone line — texts you the moment a client needs you right now, no call required.',
+  },
 ]
 
 export default function WhatIBuild() {
@@ -39,7 +44,7 @@ export default function WhatIBuild() {
             first click.
           </p>
         </Reveal>
-        <div className="grid grid--2">
+        <div className="grid grid--3">
           {items.map((item, i) => (
             <Reveal key={item.title} delay={i * 90}>
               <div className="card">
