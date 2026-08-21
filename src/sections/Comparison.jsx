@@ -20,6 +20,13 @@ const rows = [
     range: '$25 – $199',
     text: 'Automated phone answering, purchased separately.',
   },
+  {
+    icon: 'bolt',
+    title: 'Urgent service',
+    range: 'New concept',
+    text: "We looked — nobody else sells this. A website button plus an IVR option that text the notary the moment a client needs them right now, with a live reply window. No market price exists to compare it to.",
+    noRate: true,
+  },
 ]
 
 export default function Comparison() {
@@ -35,7 +42,7 @@ export default function Comparison() {
             (2026).
           </p>
         </Reveal>
-        <div className="grid grid--3">
+        <div className="grid grid--4">
           {rows.map((row, i) => (
             <Reveal key={row.title} delay={i * 90}>
               <div className="card">
@@ -45,7 +52,7 @@ export default function Comparison() {
                 <h3 className="card__title">{row.title}</h3>
                 <p className="price price--sm">
                   {row.range}
-                  <span>/ mo</span>
+                  {!row.noRate && <span>/ mo</span>}
                 </p>
                 <p className="card__text">{row.text}</p>
               </div>
@@ -57,6 +64,10 @@ export default function Comparison() {
             Hiring each service separately:{' '}
             <strong>$137 – $406 / mo</strong>
           </div>
+          <p className="section__note" style={{ textAlign: 'center', margin: '10px auto 0' }}>
+            Doesn&rsquo;t include urgent service — there&rsquo;s no market rate to add, since nobody
+            else offers it.
+          </p>
         </Reveal>
         <Reveal delay={340}>
           <div className="bundle">
