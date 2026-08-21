@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { PRODUCT_OPTIONS, STATUS_OPTIONS, createNotary, getNotary, updateNotary } from './notariesApi'
+import { PRODUCT_OPTIONS, STATUS_OPTIONS, createNotary, getNotary, listNotaries, updateNotary } from './notariesApi'
 import PhotoCropper from './PhotoCropper'
 
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024
@@ -20,6 +20,7 @@ const emptyForm = {
   twilioPhoneNumber: '',
   businessAddress: '',
   firstPaymentDate: '',
+  referredBy: '',
   location: '',
   photoUrl: '',
   photoCropX: 0.5,
@@ -54,6 +55,11 @@ export default function NotaryFormPage() {
   const [error, setError] = useState('')
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [notaries, setNotaries] = useState([])
+
+  useEffect(() => {
+    listNotaries().then(setNotaries).catch(() => {})
+  }, [])
 
   async function handlePhotoFile(e) {
     const file = e.target.files?.[0]
@@ -261,6 +267,23 @@ export default function NotaryFormPage() {
           <span className="admin-hint">
             Bills recur due on this same day every month. Set automatically the first time a
             bill is marked paid — only set this by hand to correct it.
+          </span>
+        </label>
+
+        <label>
+          Referred by
+          <select
+            value={form.referredBy}
+            onChange={(e) => setForm({ ...form, referredBy: e.target.value })}
+          >
+            <option value="">None</option>
+            {notaries.filter((n) => n.id !== id).map((n) => (
+              <option key={n.id} value={n.id}>{n.businessName}</option>
+            ))}
+          </select>
+          <span className="admin-hint">
+            If another notary sent this client your way, pick them here — they get a free
+            month automatically the day this notary's first bill is marked paid.
           </span>
         </label>
 

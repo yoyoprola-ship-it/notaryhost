@@ -14,6 +14,7 @@ import Included from '../sections/Included'
 import Benefits from '../sections/Benefits'
 import CaseStudy from '../sections/CaseStudy'
 import Directory from '../sections/Directory'
+import Referrals from '../sections/Referrals'
 import Pricing from '../sections/Pricing'
 import Comparison from '../sections/Comparison'
 import Cta from '../sections/Cta'
@@ -47,6 +48,7 @@ export default function MarketingPage() {
       <Benefits />
       <CaseStudy />
       <Directory />
+      <Referrals />
       <Pricing />
       <Comparison />
       <Cta />

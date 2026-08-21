@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { deleteNotary, getNotary } from './notariesApi'
+import { deleteNotary, getNotary, listNotaries } from './notariesApi'
 
 function dayOrdinalSuffix(day) {
   if (day % 10 === 1 && day !== 11) return 'st'
@@ -13,12 +13,16 @@ export default function NotaryDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [notary, setNotary] = useState(null)
+  const [allNotaries, setAllNotaries] = useState([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    getNotary(id)
-      .then(setNotary)
+    Promise.all([getNotary(id), listNotaries()])
+      .then(([n, all]) => {
+        setNotary(n)
+        setAllNotaries(all)
+      })
       .finally(() => setLoading(false))
   }, [id])
 
@@ -31,6 +35,9 @@ export default function NotaryDetailPage() {
 
   if (loading) return <div className="admin-shell">Loading…</div>
   if (!notary) return <div className="admin-shell">Notary not found.</div>
+
+  const referrer = allNotaries.find((n) => n.id === notary.referredBy)
+  const referred = allNotaries.filter((n) => n.referredBy === id)
 
   return (
     <div className="admin-shell">
@@ -101,6 +108,36 @@ export default function NotaryDetailPage() {
 
         <dt>Stripe customer</dt>
         <dd>{notary.stripeCustomerId || 'Not connected yet'}</dd>
+
+        <dt>Referred by</dt>
+        <dd>
+          {referrer ? (
+            <Link to={`/admin/notaries/${referrer.id}`}>{referrer.businessName}</Link>
+          ) : (
+            '—'
+          )}
+        </dd>
+
+        <dt>Referrals</dt>
+        <dd>
+          {referred.length === 0 ? (
+            '—'
+          ) : (
+            <>
+              {referred.map((n, i) => (
+                <span key={n.id}>
+                  {i > 0 && ', '}
+                  <Link to={`/admin/notaries/${n.id}`}>{n.businessName}</Link>
+                  {n.firstPaymentDate ? '' : ' (not paying yet)'}
+                </span>
+              ))}
+            </>
+          )}
+          {' — '}
+          <strong>{notary.freeMonthsRemaining || 0}</strong> free month
+          {(notary.freeMonthsRemaining || 0) === 1 ? '' : 's'} available
+          {notary.freeMonthsEarnedTotal ? ` (${notary.freeMonthsEarnedTotal} earned all-time)` : ''}
+        </dd>
 
         <dt>Notes</dt>
         <dd className="admin-detail__notes">{notary.notes || '—'}</dd>

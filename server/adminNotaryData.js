@@ -41,7 +41,7 @@ async function getNotaryConfigOr404(notaryId, res) {
     res.status(404).json({ error: 'notary_not_found' })
     return null
   }
-  const { collectionPrefix, twilioPhoneNumber, products, firstPaymentDate } = snap.data()
+  const { collectionPrefix, twilioPhoneNumber, products, firstPaymentDate, referredBy } = snap.data()
   if (!collectionPrefix) {
     res.status(409).json({ error: 'not_configured' })
     return null
@@ -51,6 +51,7 @@ async function getNotaryConfigOr404(notaryId, res) {
     twilioPhoneNumber: twilioPhoneNumber || '',
     products: products || [],
     firstPaymentDate: firstPaymentDate || null,
+    referredBy: referredBy || null,
   }
 }
 
@@ -326,14 +327,37 @@ router.post('/:notaryId/phone/reply', requireAdmin, async (req, res) => {
   res.json({ ok: true })
 })
 
-async function saveBill(prefix, products, period, label, bookings, minutes, dueDate) {
+// Atomically spends one referral-earned free month, if this notary has any
+// left. Transaction-guarded because saveBill runs twice concurrently
+// (current + previous period) on every dashboard load — without this, both
+// calls could read the same balance and both apply a credit.
+async function consumeFreeMonthIfAvailable(notaryId) {
+  const ref = adminDb.doc(`notaries/${notaryId}`)
+  return adminDb.runTransaction(async (tx) => {
+    const snap = await tx.get(ref)
+    const remaining = snap.data()?.freeMonthsRemaining || 0
+    if (remaining <= 0) return false
+    tx.update(ref, { freeMonthsRemaining: remaining - 1 })
+    return true
+  })
+}
+
+async function saveBill(prefix, notaryId, products, period, label, bookings, minutes, dueDate) {
   const bill = computeBill(products, bookings, minutes)
   const ref = adminDb.collection(`${prefix}_bills`).doc(period)
   const snap = await ref.get()
   if (snap.exists && snap.data()?.status === 'paid') return
   const existing = snap.data() ?? {}
+
+  // Once a period is marked free it stays free (idempotent) — otherwise
+  // check for an unspent referral credit and consume it for this period.
+  const freeMonth = existing.freeMonth === true || (await consumeFreeMonthIfAvailable(notaryId))
+  const finalBill = freeMonth
+    ? { ...bill, baseFee: 0, bookingFee: 0, minutesFee: 0, total: 0 }
+    : bill
+
   await ref.set({
-    period, label, bookings, minutes, dueDate, ...bill,
+    period, label, bookings, minutes, dueDate, ...finalBill, freeMonth,
     status: existing.status ?? 'pending',
     paidAt: existing.paidAt ?? null,
     createdAt: existing.createdAt ?? FieldValue.serverTimestamp(),
@@ -418,8 +442,8 @@ router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
   }
 
   void Promise.all([
-    saveBill(prefix, products, cur.period, cur.label, bookingsCur, twilioCur.minutes, cur.dueDate),
-    saveBill(prefix, products, prev.period, prev.label, bookingsPrev, twilioPrev.minutes, prev.dueDate),
+    saveBill(prefix, req.params.notaryId, products, cur.period, cur.label, bookingsCur, twilioCur.minutes, cur.dueDate),
+    saveBill(prefix, req.params.notaryId, products, prev.period, prev.label, bookingsPrev, twilioPrev.minutes, prev.dueDate),
   ]).catch(() => {})
 
   const curBill = computeBill(products, bookingsCur, twilioCur.minutes)
@@ -456,16 +480,26 @@ router.patch('/:notaryId/bookings/:bookingId/cancel', requireAdmin, async (req, 
 router.patch('/:notaryId/bills/:period/paid', requireAdmin, async (req, res) => {
   const cfg = await getNotaryConfigOr404(req.params.notaryId, res)
   if (!cfg) return
-  const { prefix, firstPaymentDate } = cfg
+  const { prefix, firstPaymentDate, referredBy } = cfg
   await adminDb.doc(`${prefix}_bills/${req.params.period}`).update({
     status: 'paid',
     paidAt: FieldValue.serverTimestamp(),
   })
   // First bill ever marked paid for this notary anchors their recurring
-  // due date — same day-of-month, every month, from here on.
+  // due date — same day-of-month, every month, from here on. It's also
+  // the exact moment their subscription is "confirmed started" — the
+  // site is live and they're actually paying — so this is where a
+  // referral credit gets awarded to whoever referred them, if anyone.
+  // No cap on referrals or free months.
   if (!firstPaymentDate) {
     const today = new Date().toISOString().slice(0, 10)
     await adminDb.doc(`notaries/${req.params.notaryId}`).set({ firstPaymentDate: today }, { merge: true })
+    if (referredBy) {
+      await adminDb.doc(`notaries/${referredBy}`).update({
+        freeMonthsRemaining: FieldValue.increment(1),
+        freeMonthsEarnedTotal: FieldValue.increment(1),
+      }).catch(() => {})
+    }
   }
   res.json({ ok: true })
 })

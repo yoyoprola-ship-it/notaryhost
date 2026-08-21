@@ -308,19 +308,27 @@ function BillingSection({ notaryId, bills, onChange }) {
           {bills.map((b) => (
             <tr key={b.id}>
               <td>{b.label}</td>
-              <td>{fmtMoney(b.baseFee)}</td>
-              <td>
-                {b.bookings}{b.includedBookings > 0 ? ` / ${b.includedBookings}` : ''}
-                {b.extraBookings > 0 && (
-                  <span className="admin-muted"> (+{b.extraBookings} = {fmtMoney(b.bookingFee)})</span>
-                )}
-              </td>
-              <td>
-                {b.minutes}{b.includedMinutes > 0 ? ` / ${b.includedMinutes}` : ''}
-                {b.extraMinutes > 0 && (
-                  <span className="admin-muted"> (+{b.extraMinutes} = {fmtMoney(b.minutesFee)})</span>
-                )}
-              </td>
+              {b.freeMonth ? (
+                <td colSpan={3}>
+                  <span className="admin-status admin-status--active">FREE MONTH (referral)</span>
+                </td>
+              ) : (
+                <>
+                  <td>{fmtMoney(b.baseFee)}</td>
+                  <td>
+                    {b.bookings}{b.includedBookings > 0 ? ` / ${b.includedBookings}` : ''}
+                    {b.extraBookings > 0 && (
+                      <span className="admin-muted"> (+{b.extraBookings} = {fmtMoney(b.bookingFee)})</span>
+                    )}
+                  </td>
+                  <td>
+                    {b.minutes}{b.includedMinutes > 0 ? ` / ${b.includedMinutes}` : ''}
+                    {b.extraMinutes > 0 && (
+                      <span className="admin-muted"> (+{b.extraMinutes} = {fmtMoney(b.minutesFee)})</span>
+                    )}
+                  </td>
+                </>
+              )}
               <td>{fmtMoney(b.total)}</td>
               <td>{b.dueDate}</td>
               <td><span className={`admin-status admin-status--${b.status === 'paid' ? 'active' : 'onboarding'}`}>{b.status}</span></td>

@@ -16,6 +16,7 @@ const links = [
   { href: '#benefits', label: 'Benefits', icon: 'rocket' },
   { href: '#results', label: 'Results', icon: 'pulse' },
   { href: '/notaries', label: 'Notary directory', icon: 'pin' },
+  { href: '#referrals', label: 'Referrals', icon: 'seal' },
   { href: '#pricing', label: 'Pricing', icon: 'dollar' },
   { href: '#comparison', label: 'Comparison', icon: 'transfer' },
 ]
