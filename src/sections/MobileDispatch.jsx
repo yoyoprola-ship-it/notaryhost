@@ -9,13 +9,13 @@ const steps = [
   },
   {
     icon: 'dollar',
-    title: 'Distance fee calculated and paid',
-    text: 'The travel fee is calculated automatically from the distance, and charged before you leave — so a cancellation never costs you time or gas.',
+    title: 'Distance fee calculated automatically',
+    text: 'The travel fee is calculated the moment they enter their address. You decide when it gets charged — before you leave, or after the visit — it defaults however you set it up.',
   },
   {
     icon: 'truck',
     title: 'You head to the client',
-    text: 'Everything is already confirmed and paid the moment you get in the car.',
+    text: "Address and fee are already confirmed — payment follows whichever timing you chose.",
   },
 ]
 
@@ -30,8 +30,9 @@ export default function MobileDispatch() {
         <Reveal delay={80}>
           <p className="section__lead">
             When a client needs you on-site right now, this handles the
-            logistics automatically — the fee, the payment, and the address —
-            before you ever start the car.
+            logistics automatically — the address and the travel fee. Whether
+            the client pays before you leave or after the visit is entirely
+            your call.
           </p>
         </Reveal>
         <div className="steps">
@@ -56,7 +57,9 @@ export default function MobileDispatch() {
         <Reveal delay={steps.length * 100}>
           <p className="section__note">
             Available as an add-on for notaries who travel to clients. Service
-            area, minimum fee, and per-mile rate are all set to your request.
+            area, minimum fee, per-mile rate, and whether payment is
+            collected before or after the visit are all set to your request —
+            it's entirely your decision, not a fixed rule.
           </p>
         </Reveal>
       </div>
