@@ -1,6 +1,15 @@
 import Icon from '../components/Icon'
 import Reveal from '../components/Reveal'
 
+const services = [
+  { icon: 'globe', label: 'Bilingual website' },
+  { icon: 'calendar', label: '24/7 bookings' },
+  { icon: 'phone', label: 'Phone robot (IVR)' },
+  { icon: 'gauge', label: 'Admin dashboard' },
+  { icon: 'bolt', label: 'Urgent service' },
+  { icon: 'truck', label: 'Mobile dispatch' },
+]
+
 export default function Hero() {
   return (
     <header className="hero" id="top">
@@ -29,6 +38,18 @@ export default function Hero() {
           </p>
         </Reveal>
         <Reveal delay={240}>
+          <ul className="hero__services">
+            {services.map((s) => (
+              <li key={s.label} className="hero__service-chip">
+                <span className="hero__service-icon">
+                  <Icon name={s.icon} size={14} />
+                </span>
+                {s.label}
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+        <Reveal delay={320}>
           <div className="hero__tagline">
             <span className="brand__mark brand__mark--sm">
               <Icon name="seal" size={16} />
