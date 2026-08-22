@@ -33,7 +33,7 @@ export default function Nav() {
     <header className="site-nav site-nav--banner">
       <div className="section-inner site-nav__inner">
         <a className="site-nav__banner-link" href="#top" aria-label="NotaryHost — home">
-          <img className="site-nav__banner-img" src="/notaryhost-nav-banner.png" alt="Notary Host" />
+          <img className="site-nav__banner-img" src="/notaryhost-nav-logo.png" alt="Notary Host — Empowering notaries. Elevating businesses." />
         </a>
 
         <button

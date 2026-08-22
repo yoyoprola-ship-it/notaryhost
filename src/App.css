@@ -344,15 +344,16 @@
   border-bottom: 1px solid rgba(236, 206, 142, 0.12);
 }
 
-/* Logo banner behind the main site nav (homepage only — the lightweight
+/* Logo mark behind the main site nav (homepage only — the lightweight
    headers on Privacy/Terms/Directory keep the plain dark bar since they
-   only use the shared .site-nav/.site-nav__inner classes). The whole
-   image is always shown uncropped (object-fit: contain) — it just won't
-   always fill the full box width, which is fine. Everything here is a
-   normal in-flow flex item (no position: absolute) specifically so it
-   can never sit on top of the toggle button and steal its clicks. */
+   only use the shared .site-nav/.site-nav__inner classes). It's a
+   transparent PNG with a compact ~3:1 aspect ratio, so one height works
+   for every screen size — no cropping, no per-breakpoint sizing needed.
+   Everything here is a normal in-flow flex item (no position: absolute)
+   specifically so it can never sit on top of the toggle button and
+   steal its clicks. */
 .site-nav--banner {
-  height: 76px;
+  height: 72px;
   background: #f7f1e6;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -364,35 +365,22 @@
   height: 100%;
   justify-content: space-between;
   gap: 12px;
-  padding-top: 0;
-  padding-bottom: 0;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .site-nav__banner-link {
   display: block;
   height: 100%;
-  min-width: 0;
-  flex: 1 1 auto;
-  max-width: 640px;
+  flex-shrink: 0;
 }
 
 .site-nav__banner-img {
-  width: 100%;
   height: 100%;
+  width: auto;
   object-fit: contain;
   object-position: left center;
   display: block;
-}
-
-@media (max-width: 700px) {
-  .site-nav--banner {
-    height: 56px;
-  }
-  .site-nav--banner .site-nav__toggle {
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
-  }
 }
 
 .site-nav__inner {
@@ -559,7 +547,7 @@
   color: #fff;
   overflow: hidden;
   padding-bottom: 110px;
-  padding-top: 94px;
+  padding-top: 90px;
 }
 
 .hero__glow {
@@ -634,9 +622,6 @@
 }
 
 @media (max-width: 700px) {
-  .hero {
-    padding-top: 76px;
-  }
   .hero__title {
     font-size: 2.6rem;
   }
