@@ -12,6 +12,10 @@ export async function deleteEnvelopeRecipient(id) {
   return adminFetch(`/api/admin/envelopes/${id}`, { method: 'DELETE' })
 }
 
+export async function updateEnvelopeRecipient(id, name, address) {
+  return adminFetch(`/api/admin/envelopes/${id}`, { method: 'POST', body: { name, address } })
+}
+
 export async function setEnvelopeRecipientLanguage(id, language) {
   return adminFetch(`/api/admin/envelopes/${id}/language`, { method: 'POST', body: { language } })
 }

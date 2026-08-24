@@ -7,6 +7,7 @@ import {
   markPromotionSent,
   setEnvelopeRecipientLanguage,
   startNextPromotion,
+  updateEnvelopeRecipient,
 } from './envelopesApi'
 import { downloadBlob, generateEnvelopePdf } from './generateEnvelopePdf'
 
@@ -35,6 +36,11 @@ export default function EnvelopesPage() {
   const [pendingIds, setPendingIds] = useState([])
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [editingId, setEditingId] = useState(null)
+  const [editName, setEditName] = useState('')
+  const [editAddress, setEditAddress] = useState('')
+  const [editSaving, setEditSaving] = useState(false)
+  const [editError, setEditError] = useState('')
 
   function load() {
     return Promise.all([listEnvelopeRecipients(), getCurrentPromotion()])
@@ -98,10 +104,37 @@ export default function EnvelopesPage() {
     }
   }
 
-  async function handleDelete(id) {
+  async function handleDelete(id, name) {
+    if (!window.confirm(`Remove ${name} from the list? This can't be undone.`)) return
     await deleteEnvelopeRecipient(id)
     setPendingIds((prev) => prev.filter((pid) => pid !== id))
     await load()
+  }
+
+  function handleStartEdit(r) {
+    setEditingId(r.id)
+    setEditName(r.name)
+    setEditAddress(r.address)
+    setEditError('')
+  }
+
+  function handleCancelEdit() {
+    setEditingId(null)
+    setEditError('')
+  }
+
+  async function handleSaveEdit(id) {
+    setEditError('')
+    setEditSaving(true)
+    try {
+      await updateEnvelopeRecipient(id, editName, editAddress)
+      setEditingId(null)
+      await load()
+    } catch (err) {
+      setEditError(ERROR_MESSAGES[err.code] || 'Could not save changes.')
+    } finally {
+      setEditSaving(false)
+    }
   }
 
   async function handleGeneratePdf() {
@@ -279,47 +312,87 @@ export default function EnvelopesPage() {
             </tr>
           </thead>
           <tbody>
-            {pageItems.map((r) => (
-              <tr key={r.id}>
-                <td>{r.name}</td>
-                <td>{r.address}</td>
-                <td>
-                  {r.promotionsSent && r.promotionsSent.length > 0
-                    ? r.promotionsSent.slice().sort((a, b) => a - b).join(', ')
-                    : <span className="admin-muted">—</span>}
-                </td>
-                <td style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <select
-                    value={r.language || 'en'}
-                    onChange={(e) => handleSetLanguage(r.id, e.target.value)}
-                    disabled={settingLanguageId === r.id}
-                    title="Language"
-                    style={{ padding: '2px 6px', fontSize: '0.8rem' }}
-                  >
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                  </select>
-                  <a
-                    className="admin-btn"
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.address)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Map
-                  </a>
-                  <button
-                    className="admin-btn"
-                    onClick={() => handleGenerateOne(r)}
-                    disabled={generatingId === r.id}
-                  >
-                    {generatingId === r.id ? 'Generating…' : 'Generate PDF'}
-                  </button>
-                  <button className="admin-btn admin-btn--danger" onClick={() => handleDelete(r.id)}>
-                    Remove
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {pageItems.map((r) =>
+              editingId === r.id ? (
+                <tr key={r.id}>
+                  <td>
+                    <input
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      style={{ width: '100%' }}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      value={editAddress}
+                      onChange={(e) => setEditAddress(e.target.value)}
+                      style={{ width: '100%' }}
+                    />
+                    {editError && <p className="admin-error" style={{ margin: '4px 0 0' }}>{editError}</p>}
+                  </td>
+                  <td>
+                    {r.promotionsSent && r.promotionsSent.length > 0
+                      ? r.promotionsSent.slice().sort((a, b) => a - b).join(', ')
+                      : <span className="admin-muted">—</span>}
+                  </td>
+                  <td style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <button
+                      className="admin-btn admin-btn--primary"
+                      onClick={() => handleSaveEdit(r.id)}
+                      disabled={editSaving}
+                    >
+                      {editSaving ? 'Saving…' : 'Save'}
+                    </button>
+                    <button className="admin-btn" onClick={handleCancelEdit} disabled={editSaving}>
+                      Cancel
+                    </button>
+                  </td>
+                </tr>
+              ) : (
+                <tr key={r.id}>
+                  <td>{r.name}</td>
+                  <td>{r.address}</td>
+                  <td>
+                    {r.promotionsSent && r.promotionsSent.length > 0
+                      ? r.promotionsSent.slice().sort((a, b) => a - b).join(', ')
+                      : <span className="admin-muted">—</span>}
+                  </td>
+                  <td style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <select
+                      value={r.language || 'en'}
+                      onChange={(e) => handleSetLanguage(r.id, e.target.value)}
+                      disabled={settingLanguageId === r.id}
+                      title="Language"
+                      style={{ padding: '2px 6px', fontSize: '0.8rem' }}
+                    >
+                      <option value="en">English</option>
+                      <option value="es">Español</option>
+                    </select>
+                    <a
+                      className="admin-btn"
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Map
+                    </a>
+                    <button className="admin-btn" onClick={() => handleStartEdit(r)}>
+                      Edit
+                    </button>
+                    <button
+                      className="admin-btn"
+                      onClick={() => handleGenerateOne(r)}
+                      disabled={generatingId === r.id}
+                    >
+                      {generatingId === r.id ? 'Generating…' : 'Generate PDF'}
+                    </button>
+                    <button className="admin-btn admin-btn--danger" onClick={() => handleDelete(r.id, r.name)}>
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              )
+            )}
           </tbody>
         </table>
       )}

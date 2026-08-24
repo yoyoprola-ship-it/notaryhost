@@ -81,6 +81,30 @@ router.post('/', async (req, res) => {
   res.json({ id: ref.id, name, address, promotionsSent: [], language })
 })
 
+router.post('/:id', async (req, res) => {
+  const name = typeof req.body?.name === 'string' ? req.body.name.trim().slice(0, 200) : ''
+  const address = typeof req.body?.address === 'string' ? req.body.address.trim().slice(0, 400) : ''
+  if (!name) return res.status(400).json({ error: 'name_required' })
+  if (!address) return res.status(400).json({ error: 'address_required' })
+
+  const addressNormalized = normalizeAddress(address)
+  const existing = await adminDb
+    .collection('envelopeRecipients')
+    .where('addressNormalized', '==', addressNormalized)
+    .limit(1)
+    .get()
+  if (!existing.empty && existing.docs[0].id !== req.params.id) {
+    return res.status(409).json({ error: 'duplicate_address' })
+  }
+
+  await adminDb.collection('envelopeRecipients').doc(req.params.id).update({
+    name,
+    address,
+    addressNormalized,
+  })
+  res.json({ ok: true, name, address })
+})
+
 router.delete('/:id', async (req, res) => {
   await adminDb.collection('envelopeRecipients').doc(req.params.id).delete()
   res.json({ ok: true })
