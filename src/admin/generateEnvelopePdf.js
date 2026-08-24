@@ -1,30 +1,71 @@
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import { PDFDocument, rgb } from 'pdf-lib'
+import fontkit from '@pdf-lib/fontkit'
 
 // US #10 envelope: 9.5in x 4.125in, landscape — 72pt per inch.
 const ENVELOPE_WIDTH = 9.5 * 72
 const ENVELOPE_HEIGHT = 4.125 * 72
 
-// One page per recipient, sized exactly to a #10 envelope. Placement is
-// intentionally plain (name + address block, roughly where a recipient
-// address goes) — the visual design gets refined later; this just proves
-// the page size and per-recipient iteration are correct.
+// Measured directly off the final envelope-template.png (the 4 ruled
+// lines in the "TO:" block) — see the pixel analysis that produced
+// these: x runs 5.7in–7.85in, and the 4 lines sit at these heights
+// above the bottom edge.
+const ADDRESS_LEFT = 5.7 * 72
+const ADDRESS_RIGHT = 7.85 * 72
+const ADDRESS_MAX_WIDTH = ADDRESS_RIGHT - ADDRESS_LEFT
+const LINE_Y = [1.608 * 72, 1.332 * 72, 1.052 * 72, 0.768 * 72]
+// Nudge text up off the ruled line, like handwriting sitting on top of it.
+const BASELINE_LIFT = 4
+
+async function fetchBytes(url) {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`Could not load ${url}`)
+  return res.arrayBuffer()
+}
+
+// Splits a single-line address like "9420 Cullen Blvd, Houston, TX 77051"
+// into a street line and a city/state/zip line for the two lines below
+// the name.
+function splitAddress(address) {
+  const parts = address.split(',').map((p) => p.trim()).filter(Boolean)
+  if (parts.length <= 1) return [address, '']
+  return [parts[0], parts.slice(1).join(', ')]
+}
+
+function fitFontSize(font, text, maxWidth, startSize = 11, minSize = 7) {
+  let size = startSize
+  while (size > minSize && font.widthOfTextAtSize(text, size) > maxWidth) {
+    size -= 0.5
+  }
+  return size
+}
+
+// One page per recipient, sized exactly to a #10 envelope, using the
+// real envelope artwork as the background with the name/address set in
+// Montserrat directly on top of the "TO:" ruled lines.
 export async function generateEnvelopePdf(recipients) {
   const pdf = await PDFDocument.create()
-  const font = await pdf.embedFont(StandardFonts.Helvetica)
-  const fontSize = 12
-  const lineHeight = fontSize * 1.4
+  pdf.registerFontkit(fontkit)
+
+  const [fontBytes, templateBytes] = await Promise.all([
+    fetchBytes('/fonts/Montserrat-SemiBold.woff'),
+    fetchBytes('/envelope-template.png'),
+  ])
+  const font = await pdf.embedFont(fontBytes)
+  const template = await pdf.embedPng(templateBytes)
 
   for (const { name, address } of recipients) {
     const page = pdf.addPage([ENVELOPE_WIDTH, ENVELOPE_HEIGHT])
-    const lines = [name, address]
-    const startX = ENVELOPE_WIDTH * 0.52
-    const startY = ENVELOPE_HEIGHT * 0.58
+    page.drawImage(template, { x: 0, y: 0, width: ENVELOPE_WIDTH, height: ENVELOPE_HEIGHT })
+
+    const [street, cityStateZip] = splitAddress(address)
+    const lines = [name, street, cityStateZip].filter(Boolean)
 
     lines.forEach((line, i) => {
+      const size = fitFontSize(font, line, ADDRESS_MAX_WIDTH)
       page.drawText(line, {
-        x: startX,
-        y: startY - i * lineHeight,
-        size: fontSize,
+        x: ADDRESS_LEFT,
+        y: LINE_Y[i] + BASELINE_LIFT,
+        size,
         font,
         color: rgb(0, 0, 0),
       })
