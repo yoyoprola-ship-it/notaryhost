@@ -42,6 +42,26 @@ function fitFontSize(font, text, maxWidth, startSize = 11, minSize = 7) {
   return size
 }
 
+// Names/addresses are arbitrary recipient data we don't control, and
+// pdf-lib's custom-font text shaping silently corrupts "fi"/"fl"/"ff"
+// ligatures into stray characters once a document accumulates enough
+// pages (seen for real on generated batches — "Fiscales" -> "'scales",
+// "Office" -> "of'ce"). Ligatures are a pure cosmetic nicety here, so
+// instead of drawing a line in one call (letting the font fuse those
+// letter pairs), each piece between ligature-forming pairs is drawn as
+// its own call — the shaper never sees "f" next to "i/l/f" in the same
+// run, so it can't form the glyph that was corrupting.
+const LIGATURE_SPLIT = /(?<=f)(?=[fil])/g
+
+function drawTextNoLigatures(page, text, { x, y, size, font, color }) {
+  let cursorX = x
+  for (const piece of text.split(LIGATURE_SPLIT)) {
+    if (piece === '') continue
+    page.drawText(piece, { x: cursorX, y, size, font, color })
+    cursorX += font.widthOfTextAtSize(piece, size)
+  }
+}
+
 // One page per recipient, sized exactly to a #10 envelope, using the
 // real envelope artwork as the background with the name/address set in
 // Montserrat in the "TO:" block.
@@ -65,13 +85,7 @@ export async function generateEnvelopePdf(recipients) {
 
     lines.forEach((line, i) => {
       const size = fitFontSize(font, line, ADDRESS_MAX_WIDTH)
-      page.drawText(line, {
-        x: ADDRESS_LEFT,
-        y: LINE_Y[i],
-        size,
-        font,
-        color: rgb(0, 0, 0),
-      })
+      drawTextNoLigatures(page, line, { x: ADDRESS_LEFT, y: LINE_Y[i], size, font, color: rgb(0, 0, 0) })
     })
   }
 
