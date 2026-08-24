@@ -5,16 +5,18 @@ import fontkit from '@pdf-lib/fontkit'
 const ENVELOPE_WIDTH = 9.5 * 72
 const ENVELOPE_HEIGHT = 4.125 * 72
 
-// Measured directly off the final envelope-template.png (the 4 ruled
-// lines in the "TO:" block) — see the pixel analysis that produced
-// these: x runs 5.7in–7.85in, and the 4 lines sit at these heights
-// above the bottom edge.
+// The "TO:" block used to have 4 ruled lines to write on; now that the
+// address is always machine-printed (never handwritten), the lines were
+// removed from the artwork and the 3 lines of text (name, street,
+// city/state/zip) are spaced evenly across that same block instead —
+// x runs 5.7in–7.85in (measured off the original ruled lines), and the
+// 3 rows split that same top-to-bottom span into two equal gaps.
 const ADDRESS_LEFT = 5.7 * 72
 const ADDRESS_RIGHT = 7.85 * 72
 const ADDRESS_MAX_WIDTH = ADDRESS_RIGHT - ADDRESS_LEFT
-const LINE_Y = [1.608 * 72, 1.332 * 72, 1.052 * 72, 0.768 * 72]
-// Nudge text up off the ruled line, like handwriting sitting on top of it.
-const BASELINE_LIFT = 4
+const ADDRESS_TOP = 1.608 * 72
+const ADDRESS_BOTTOM = 0.768 * 72
+const LINE_Y = [ADDRESS_TOP, (ADDRESS_TOP + ADDRESS_BOTTOM) / 2, ADDRESS_BOTTOM]
 
 async function fetchBytes(url) {
   const res = await fetch(url)
@@ -41,7 +43,7 @@ function fitFontSize(font, text, maxWidth, startSize = 11, minSize = 7) {
 
 // One page per recipient, sized exactly to a #10 envelope, using the
 // real envelope artwork as the background with the name/address set in
-// Montserrat directly on top of the "TO:" ruled lines.
+// Montserrat in the "TO:" block.
 export async function generateEnvelopePdf(recipients) {
   const pdf = await PDFDocument.create()
   pdf.registerFontkit(fontkit)
@@ -64,7 +66,7 @@ export async function generateEnvelopePdf(recipients) {
       const size = fitFontSize(font, line, ADDRESS_MAX_WIDTH)
       page.drawText(line, {
         x: ADDRESS_LEFT,
-        y: LINE_Y[i] + BASELINE_LIFT,
+        y: LINE_Y[i],
         size,
         font,
         color: rgb(0, 0, 0),
