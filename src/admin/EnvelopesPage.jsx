@@ -28,6 +28,7 @@ export default function EnvelopesPage() {
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [generating, setGenerating] = useState(false)
+  const [generatingPage, setGeneratingPage] = useState(false)
   const [generatingId, setGeneratingId] = useState(null)
   const [settingLanguageId, setSettingLanguageId] = useState(null)
   const [confirming, setConfirming] = useState(false)
@@ -146,6 +147,19 @@ export default function EnvelopesPage() {
       mergePending(eligible.map((r) => r.id))
     } finally {
       setGenerating(false)
+    }
+  }
+
+  async function handleGeneratePageItems() {
+    if (pageItems.length === 0) return
+    setGeneratingPage(true)
+    try {
+      const blob = await generateEnvelopePdf(pageItems)
+      const range = `${(page - 1) * PAGE_SIZE + 1}-${Math.min(page * PAGE_SIZE, filtered.length)}`
+      downloadBlob(blob, `envelopes-page-${range}.pdf`)
+      mergePending(pageItems.map((r) => r.id))
+    } finally {
+      setGeneratingPage(false)
     }
   }
 
@@ -275,6 +289,19 @@ export default function EnvelopesPage() {
       )}
       {recipients && recipients.length > 0 && filtered.length === 0 && (
         <p className="admin-muted">No recipients match "{search}".</p>
+      )}
+
+      {pageItems.length > 0 && (
+        <button
+          className="admin-btn"
+          onClick={handleGeneratePageItems}
+          disabled={generatingPage}
+          style={{ marginBottom: 16 }}
+        >
+          {generatingPage
+            ? 'Generating…'
+            : `Generate PDF for this page (${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, filtered.length)})`}
+        </button>
       )}
 
       {totalPages > 1 && (
