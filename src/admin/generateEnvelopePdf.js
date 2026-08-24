@@ -7,16 +7,17 @@ const ENVELOPE_HEIGHT = 4.125 * 72
 
 // The "TO:" block used to have 4 ruled lines to write on; now that the
 // address is always machine-printed (never handwritten), the lines were
-// removed from the artwork and the 3 lines of text (name, street,
-// city/state/zip) are spaced evenly across that same block instead —
-// x runs 5.7in–7.85in (measured off the original ruled lines), and the
-// 3 rows split that same top-to-bottom span into two equal gaps.
+// removed from the artwork. The 3 lines of text (name, street,
+// city/state/zip) sit close together like a normal address block,
+// vertically centered on the old lines' midpoint rather than stretched
+// across their full span — x runs 5.7in–7.85in (measured off the
+// original ruled lines).
 const ADDRESS_LEFT = 5.7 * 72
 const ADDRESS_RIGHT = 7.85 * 72
 const ADDRESS_MAX_WIDTH = ADDRESS_RIGHT - ADDRESS_LEFT
-const ADDRESS_TOP = 1.608 * 72
-const ADDRESS_BOTTOM = 0.768 * 72
-const LINE_Y = [ADDRESS_TOP, (ADDRESS_TOP + ADDRESS_BOTTOM) / 2, ADDRESS_BOTTOM]
+const ADDRESS_CENTER_Y = ((1.608 + 0.768) / 2) * 72
+const LINE_GAP = 0.26 * 72
+const LINE_Y = [ADDRESS_CENTER_Y + LINE_GAP, ADDRESS_CENTER_Y, ADDRESS_CENTER_Y - LINE_GAP]
 
 async function fetchBytes(url) {
   const res = await fetch(url)
