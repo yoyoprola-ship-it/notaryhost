@@ -161,6 +161,12 @@ function MonthlyStats({ stats }) {
         <MonthCard m={stats.current} accent />
         <MonthCard m={stats.previous} />
       </div>
+      <h2 className="admin-section-title">Urgent service</h2>
+      <div className="admin-stats">
+        <UrgentCard m={stats.current} accent />
+        <UrgentCard m={stats.previous} />
+        {stats.allTime && <UrgentCard m={stats.allTime} />}
+      </div>
       <div className="admin-stats">
         <RevenueCard m={stats.current} accent />
         <RevenueCard m={stats.previous} />
@@ -179,6 +185,29 @@ function MonthCard({ m, accent }) {
         <div><span className="admin-stat-card__value">{m.consults}</span><span className="admin-muted"> consults</span></div>
         <div><span className="admin-stat-card__value">{m.minutes}</span><span className="admin-muted"> min</span></div>
       </div>
+    </div>
+  )
+}
+
+function UrgentCard({ m, accent }) {
+  const u = m.urgent || { total: 0, confirmed: 0, notConfirmed: 0, waiting: 0, web: 0, ivr: 0 }
+  const decided = u.confirmed + u.notConfirmed
+  return (
+    <div className={`admin-stat-card${accent ? ' admin-stat-card--accent' : ''}`}>
+      <p className="admin-stat-card__label">{m.label} — Urgent requests</p>
+      <div className="admin-stat-card__grid">
+        <div><span className="admin-stat-card__value">{u.total}</span><span className="admin-muted"> requests</span></div>
+        <div><span className="admin-stat-card__value">{u.confirmed}</span><span className="admin-muted"> confirmed</span></div>
+        <div><span className="admin-stat-card__value">{u.notConfirmed}</span><span className="admin-muted"> not confirmed</span></div>
+        <div>
+          <span className="admin-stat-card__value">{decided > 0 ? `${Math.round((u.confirmed / decided) * 100)}%` : '—'}</span>
+          <span className="admin-muted"> confirm rate</span>
+        </div>
+      </div>
+      <p className="admin-muted">
+        {u.web} from website · {u.ivr} from phone
+        {u.waiting > 0 ? ` · ${u.waiting} waiting for a reply now` : ''}
+      </p>
     </div>
   )
 }

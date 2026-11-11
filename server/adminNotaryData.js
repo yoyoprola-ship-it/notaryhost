@@ -143,6 +143,29 @@ async function countBetween(col, start, end) {
   return snap.size
 }
 
+// Urgent-service requests (see the clone's app/lib/urgentService.ts). The
+// clone only ever writes 'pending' or 'confirmed' — "expired" is never
+// stored, it's just a pending request whose 2-minute window has passed, so
+// it's derived here the same way the clone's status endpoint does it.
+// No start/end = all time.
+async function urgentStatsBetween(col, start, end) {
+  let q = adminDb.collection(col)
+  if (start) q = q.where('createdAt', '>=', start).where('createdAt', '<', end)
+  const snap = await q.select('status', 'channel', 'expiresAt').get()
+  const now = Date.now()
+  const stats = { total: 0, confirmed: 0, notConfirmed: 0, waiting: 0, web: 0, ivr: 0 }
+  for (const d of snap.docs) {
+    const { status, channel, expiresAt } = d.data()
+    stats.total++
+    if (channel === 'ivr') stats.ivr++
+    else stats.web++
+    if (status === 'confirmed') stats.confirmed++
+    else if (status === 'pending' && expiresAt?.toMillis() > now) stats.waiting++
+    else stats.notConfirmed++
+  }
+  return stats
+}
+
 async function getTwilioStats(startDate, endDate, rawPhone) {
   const accountSid = process.env.TWILIO_ACCOUNT_SID
   const authToken = process.env.TWILIO_AUTH_TOKEN
@@ -411,6 +434,7 @@ router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
   const [
     bookingsCur, bookingsPrev, consultsCur, consultsPrev, twilioCur, twilioPrev,
     bookingsSnap, billsSnap, hoursSnap, ivrSnap, consultsSnap, visitsSnap,
+    urgentCur, urgentPrev, urgentAllTime,
   ] = await Promise.all([
     countBetween(`${prefix}_bookings`, cur.start, cur.end),
     countBetween(`${prefix}_bookings`, prev.start, prev.end),
@@ -424,6 +448,9 @@ router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
     adminDb.doc(`${prefix}_ivr_config/default`).get(),
     adminDb.collection(`${prefix}_consultations`).orderBy('createdAt', 'desc').limit(50).get(),
     adminDb.collection(`${prefix}_visits`).orderBy('date', 'desc').limit(90).get(),
+    urgentStatsBetween(`${prefix}_urgent_requests`, cur.start, cur.end),
+    urgentStatsBetween(`${prefix}_urgent_requests`, prev.start, prev.end),
+    urgentStatsBetween(`${prefix}_urgent_requests`),
   ])
 
   const visitsDaily = visitsSnap.docs.map((d) => ({ date: d.data().date, count: d.data().count || 0 }))
@@ -453,8 +480,9 @@ router.get('/:notaryId/dashboard', requireAdmin, async (req, res) => {
     configured: true,
     products,
     stats: {
-      current: { label: cur.label, bookings: bookingsCur, calls: twilioCur.calls, consults: consultsCur, minutes: twilioCur.minutes, dueDate: cur.dueDate, ...curBill },
-      previous: { label: prev.label, bookings: bookingsPrev, calls: twilioPrev.calls, consults: consultsPrev, minutes: twilioPrev.minutes, dueDate: prev.dueDate, ...prevBill },
+      current: { label: cur.label, bookings: bookingsCur, calls: twilioCur.calls, consults: consultsCur, minutes: twilioCur.minutes, dueDate: cur.dueDate, urgent: urgentCur, ...curBill },
+      previous: { label: prev.label, bookings: bookingsPrev, calls: twilioPrev.calls, consults: consultsPrev, minutes: twilioPrev.minutes, dueDate: prev.dueDate, urgent: urgentPrev, ...prevBill },
+      allTime: { label: 'All time', urgent: urgentAllTime },
     },
     bookings: docsOf(bookingsSnap),
     bills: docsOf(billsSnap),
